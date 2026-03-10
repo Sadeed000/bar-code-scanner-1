@@ -37,7 +37,7 @@ async function updateBrand(id, payload) {
   const doc = await BrandProfile.findByIdAndUpdate(
     id,
     payload,
-    { new: true }
+    { returnDocument: 'after' }
   );
 
   return doc;
@@ -52,11 +52,81 @@ async function listBrands(user) {
   
   // If admin → return all brands
   if (user?.role === "ADMIN") {
-    return BrandProfile.find().sort({ createdAt: -1 });
-  }
+return BrandProfile
+      .find()
+      .populate("createdBy", "name email") 
+      .sort({ createdAt: -1 });  }
 
   // Otherwise → return only user's brands
-  return BrandProfile.find({ createdBy: user._id }).sort({ createdAt: -1 });
+  return BrandProfile
+    .find({ createdBy: user._id })
+    .populate("createdBy", "name email")
+    .sort({ createdAt: -1 });
+}
+
+async function listBrandsPaged(user, options = {}) {
+  const {
+    page = 1,
+    limit = 10,
+    q,
+    startDate,
+    endDate,
+  } = options;
+
+  const safePage = Math.max(1, Number(page) || 1);
+  const safeLimit = Math.min(100, Math.max(1, Number(limit) || 10));
+  const skip = (safePage - 1) * safeLimit;
+
+  const filter = {};
+
+  if (user?.role !== "ADMIN") {
+    filter.createdBy = user?._id;
+  }
+
+  if (q && String(q).trim()) {
+    const term = String(q).trim();
+    filter.$or = [
+      { name: { $regex: term, $options: "i" } },
+      { slug: { $regex: term, $options: "i" } },
+      { category: { $regex: term, $options: "i" } },
+    ];
+  }
+
+  if (startDate || endDate) {
+    const createdAt = {};
+    if (startDate) {
+      const d = new Date(startDate);
+      if (!Number.isNaN(d.getTime())) createdAt.$gte = d;
+    }
+    if (endDate) {
+      const d = new Date(endDate);
+      if (!Number.isNaN(d.getTime())) {
+        const endExclusive = new Date(d);
+        endExclusive.setDate(endExclusive.getDate() + 1);
+        createdAt.$lt = endExclusive;
+      }
+    }
+    if (Object.keys(createdAt).length > 0) filter.createdAt = createdAt;
+  }
+
+  const [items, total] = await Promise.all([
+    BrandProfile.find(filter)
+      .populate("createdBy", "name email")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(safeLimit),
+    BrandProfile.countDocuments(filter),
+  ]);
+
+  const totalPages = Math.max(1, Math.ceil(total / safeLimit));
+
+  return {
+    items,
+    page: safePage,
+    limit: safeLimit,
+    total,
+    totalPages,
+  };
 }
 
 async function deleteBrand(id) {
@@ -71,9 +141,23 @@ async function getBrandStats() {
   // Count actual QR scans recorded in the system
   const qrScans = await QRScan.countDocuments();
 
+  // payment stats stored on brands now
+  const totalPayments = await BrandProfile.countDocuments({ amount: { $gt: 0 } });
+  const totalAmountAgg = await BrandProfile.aggregate([
+    {
+      $group: {
+        _id: null,
+        totalAmount: { $sum: { $ifNull: ["$amount", 0] } },
+      },
+    },
+  ]);
+  const totalAmount = totalAmountAgg[0]?.totalAmount || 0;
+
   return {
     totalBrands,
     qrScans,
+    totalPayments,
+    totalAmount,
   };
 }
 
@@ -82,9 +166,18 @@ async function generateQRCode(slug) {
   // record the scan and then redirect the user to the public page.
   // We use SERVER_URL env var for the backend API base.
   const serverBase = process.env.SERVER_URL || "";
-  const trackUrl = `${serverBase}/api/qr-code/r/${slug}`;
+  const trackUrl = `${serverBase}/p/${slug}`;
   const qr = await QRCode.toDataURL(trackUrl);
   return qr;
 }
 
-module.exports = { createBrand, updateBrand, getBrandBySlug, listBrands, deleteBrand, getBrandStats, generateQRCode };
+module.exports = {
+  createBrand,
+  updateBrand,
+  getBrandBySlug,
+  listBrands,
+  listBrandsPaged,
+  deleteBrand,
+  getBrandStats,
+  generateQRCode,
+};
