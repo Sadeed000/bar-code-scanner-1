@@ -9,7 +9,9 @@ const SellerSchema = new mongoose.Schema(
     shopName: String,
     address: String,
     role: { type: String, enum: ["seller", "admin"], default: "seller" },
-   },
+    paymentType: { type: String, enum: ["online", "cash"], default: "cash" },
+    amount: { type: Number, },
+  },
   
   { timestamps: true }
 );

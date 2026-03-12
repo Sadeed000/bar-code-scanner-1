@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { api, setAuthToken } from "../api/client";
 import { toast } from "react-hot-toast";
 import BrandForm from "../component/BrandForm";
+        import { Tag, Users, Smartphone, CheckCircle } from "lucide-react";
+import { IndianRupee } from "lucide-react";
 
 export default function AdminDashboard() {
   const nav = useNavigate();
@@ -20,11 +22,18 @@ const [showScanner, setShowScanner] = useState(false);  // ← Add this line
     name: "",
     slug: "",
     tagline: "",
+    watermarkUrl: "",
+    watermarkFile: null,
+    paymentType: "cash",
+    amount: 0,
     headline: "",
     headlineAccent: "",
     subtext: "",
     logoUrl: "",
+    ownerName: "",
+    ownerPhone: "",
     googleReviewUrl: "",
+    patPoojaUrl: "",
     theme: { accentColor: "#B08D57" },
     links: [
       { key: "instagram", label: "Instagram", url: "", enabled: true },
@@ -75,7 +84,9 @@ const [showScanner, setShowScanner] = useState(false);  // ← Add this line
       Object.keys(form).forEach((key) => {
         if (key === "logoFile") {
           if (form.logoFile) formData.append("logo", form.logoFile);
-        } else if (key !== "logoUrl") {
+        } else if (key === "watermarkFile") {
+          if (form.watermarkFile) formData.append("watermark", form.watermarkFile);
+        } else if (key !== "logoUrl" && key !== "watermarkUrl" && key !== "gallery" && key !== "logoFile" && key !== "watermarkFile") {
           formData.append(key, typeof form[key] === "string" ? form[key] : JSON.stringify(form[key]));
         }
       });
@@ -108,12 +119,17 @@ const [showScanner, setShowScanner] = useState(false);  // ← Add this line
       name: "",
       slug: "",
       tagline: "",
+      paymentType: "cash",
+      amount: 0,
       headline: "",
       headlineAccent: "",
       subtext: "",
       logoUrl: "",
       logoFile: null,
+      ownerName: "",
+      ownerPhone: "",
       googleReviewUrl: "",
+      patPoojaUrl: "",
       theme: { accentColor: "#B08D57" },
       links: [
         { key: "instagram", label: "Instagram", url: "", enabled: true },
@@ -156,52 +172,114 @@ const [showScanner, setShowScanner] = useState(false);  // ← Add this line
               <p className="text-gray-400">Welcome to your admin panel</p>
             </div>
 
-            {/* STATS CARDS */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              {/* Total Brands */}
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-blue-100 text-sm font-medium">Total Brands</p>
-                    <p className="text-3xl font-bold mt-2">{stats.totalBrands}</p>
-                  </div>
-                  <div className="text-4xl opacity-60">🏷️</div>
-                </div>
-              </div>
 
-              {/* Total Sellers */}
-              <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-green-100 text-sm font-medium">Total Sellers</p>
-                    <p className="text-3xl font-bold mt-2">{stats.totalSellers}</p>
-                  </div>
-                  <div className="text-4xl opacity-60">👥</div>
-                </div>
-              </div>
+{/* STATS CARDS */}
+<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
 
-              {/* QR Code Scans */}
-              <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-purple-100 text-sm font-medium">QR Scans</p>
-                    <p className="text-3xl font-bold mt-2">{stats.qrScans}</p>
-                  </div>
-                  <div className="text-4xl opacity-60">📱</div>
-                </div>
-              </div>
+  {/* Total Brands */}
+  <div className="relative group bg-gradient-to-br from-blue-500/90 to-blue-600/90 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-white shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+    
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-blue-100 text-sm">Total Brands</p>
+        <h2 className="text-3xl font-bold mt-1">{stats.totalBrands}</h2>
+        <p className="text-xs text-blue-200 mt-1">Registered brands</p>
+      </div>
 
-              {/* Active Sellers */}
-              <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-orange-100 text-sm font-medium">Active Sellers</p>
-                    <p className="text-3xl font-bold mt-2">{stats.activeSellers}</p>
-                  </div>
-                  <div className="text-4xl opacity-60">✅</div>
-                </div>
-              </div>
-            </div>
+      <div className="bg-white/20 p-3 rounded-xl">
+        <Tag size={28}/>
+      </div>
+    </div>
+
+  </div>
+
+
+  {/* Total Sellers */}
+  <div className="relative group bg-gradient-to-br from-green-500/90 to-green-600/90 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-white shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-green-100 text-sm">Total Sellers</p>
+        <h2 className="text-3xl font-bold mt-1">{stats.totalSellers}</h2>
+        <p className="text-xs text-green-200 mt-1">All sellers</p>
+      </div>
+
+      <div className="bg-white/20 p-3 rounded-xl">
+        <Users size={28}/>
+      </div>
+    </div>
+
+  </div>
+
+
+  {/* QR Scans */}
+  <div className="relative group bg-gradient-to-br from-purple-500/90 to-purple-600/90 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-white shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-purple-100 text-sm">QR Scans</p>
+        <h2 className="text-3xl font-bold mt-1">{stats.qrScans}</h2>
+        <p className="text-xs text-purple-200 mt-1">Total scans</p>
+      </div>
+
+      <div className="bg-white/20 p-3 rounded-xl">
+        <Smartphone size={28}/>
+      </div>
+    </div>
+
+  </div>
+
+
+  {/* Active Sellers */}
+  <div className="relative group bg-gradient-to-br from-orange-500/90 to-orange-600/90 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-white shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-orange-100 text-sm">Active Sellers</p>
+        <h2 className="text-3xl font-bold mt-1">{stats.activeSellers}</h2>
+        <p className="text-xs text-orange-200 mt-1">Currently active</p>
+      </div>
+
+      <div className="bg-white/20 p-3 rounded-xl">
+        <CheckCircle size={28}/>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{/* Total Payment */}
+{/* Total Payment */}
+
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+  <div className="relative bg-gradient-to-br from-emerald-500/90 to-emerald-600/90 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-white shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+
+    <div className="flex items-center justify-between">
+
+      <div>
+        <p className="text-emerald-100 text-sm">Total Payment</p>
+
+        <h2 className="text-3xl font-bold mt-1">
+          ₹{stats.totalAmount || 0}
+        </h2>
+
+        <p className="text-xs text-emerald-200 mt-1">
+          Revenue generated
+        </p>
+      </div>
+
+      <div className="bg-white/20 p-3 rounded-xl">
+        <IndianRupee size={28} />
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+            
 
             {/* CREATE BRAND BUTTON */}
             <div className="mb-6">

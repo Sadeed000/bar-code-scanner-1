@@ -60,74 +60,34 @@ export default function AdminAnalytics() {
 
   return (
     <div className="flex min-h-screen bg-gray-900">
-      {/* SIDEBAR */}
-      {/* <div className="w-64 bg-gray-800 border-r border-gray-700 p-6 fixed h-screen overflow-y-auto">
-        <div className="text-2xl font-bold mb-8 text-white">QR Admin</div>
-
-        <nav className="space-y-2">
-          <button
-            onClick={() => nav("/admin")}
-            className="w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-700 transition"
-          >
-            📊 Dashboasasard
-          </button>
-
-          <button
-            onClick={() => nav("/admin/brands")}
-            className="w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-700 transition"
-          >
-            🏷️ Brands
-          </button>
-
-          <button
-            className="w-full text-left px-4 py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
-          >
-            📈 Analytics
-          </button>
-
-          <button
-            onClick={() => nav("/admin/sellers")}
-            className="w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-700 transition"
-          >
-            👥 Seller Register
-          </button>
-        </nav>
-
-        <div className="mt-10 pt-6 border-t border-gray-700">
-          <button
-            onClick={logout}
-            className="w-full border border-gray-600 px-4 py-2 rounded-lg text-gray-300 hover:text-white hover:border-gray-500 transition"
-          >
-            🚪 Logout
-          </button>
-        </div>
-      </div> */}
-
+    
       {/* MAIN CONTENT */}
-    <div className="p-4 md:p-8 w-full">
+<div className="p-4 md:p-8 w-full">
   <div className="max-w-6xl mx-auto">
 
     {/* HEADER */}
-    <div className="mb-8">
-      <h1 className="text-3xl font-bold text-white mb-2">
+    <div className="mb-6 md:mb-8">
+      <h1 className="text-xl md:text-3xl font-bold text-white mb-1 md:mb-2">
         Brand QR Analytics
       </h1>
-      <p className="text-gray-400">Scan counts per brand</p>
+      <p className="text-gray-400 text-sm md:text-base">
+        Scan counts per brand
+      </p>
     </div>
 
     {/* SUMMARY CARDS */}
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
 
-      <div className="bg-gray-800 border border-gray-700 rounded-xl p-6">
-        <p className="text-gray-400 text-sm">Total Brands</p>
-        <h2 className="text-3xl font-bold text-white mt-2">
+      <div className="bg-gray-800 border border-gray-700 rounded-xl p-4 md:p-6">
+        <p className="text-gray-400 text-xs md:text-sm">Total Brands</p>
+        <h2 className="text-2xl md:text-3xl font-bold text-white mt-1 md:mt-2">
           {data.length}
         </h2>
       </div>
 
-      <div className="bg-gray-800 border border-gray-700 rounded-xl p-6">
-        <p className="text-gray-400 text-sm">Total QR Scans</p>
-        <h2 className="text-3xl font-bold text-white mt-2">
+      <div className="bg-gray-800 border border-gray-700 rounded-xl p-4 md:p-6">
+        <p className="text-gray-400 text-xs md:text-sm">Total QR Scans</p>
+        <h2 className="text-2xl md:text-3xl font-bold text-white mt-1 md:mt-2">
           {data.reduce((a, b) => a + (b.scanCount || 0), 0)}
         </h2>
       </div>
@@ -137,52 +97,70 @@ export default function AdminAnalytics() {
     {/* TABLE */}
     <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
 
-      <table className="w-full text-left">
+      {/* Horizontal scroll for mobile */}
+      <div className="overflow-x-auto">
 
-        <thead className="bg-gray-700 text-gray-200 text-sm uppercase tracking-wider">
-          <tr>
-            <th className="px-6 py-4">Brand</th>
-            <th className="px-6 py-4">Slug</th>
-            <th className="px-6 py-4 text-right">QR Scans</th>
-          </tr>
-        </thead>
+        <table className="min-w-[650px] w-full text-left">
 
-        <tbody>
-
-          {data.map((b) => (
-            <tr
-              key={b._id}
-              className="border-b border-gray-700 hover:bg-gray-700/40 transition"
-            >
-              {/* BRAND */}
-              <td className="px-6 py-4 flex items-center gap-3">
-
-                <div className="h-9 w-9 flex items-center justify-center rounded-full bg-blue-600 text-white font-bold">
-                  {b.name?.charAt(0).toUpperCase()}
-                </div>
-
-                <span className="text-white">{b.name}</span>
-
-              </td>
-
-              {/* SLUG */}
-              <td className="px-6 py-4 text-gray-300">
-                {b.slug}
-              </td>
-
-              {/* SCANS */}
-              <td className="px-6 py-4 text-right">
-                <span className="px-3 py-1 rounded-full bg-blue-600/20 text-blue-400 text-sm font-medium">
-                  {b.scanCount || 0}
-                </span>
-              </td>
-
+          <thead className="bg-gray-700 text-gray-200 text-xs md:text-sm uppercase tracking-wider">
+            <tr>
+              <th className="px-4 md:px-6 py-3 md:py-4">Brand</th>
+              <th className="px-4 md:px-6 py-3 md:py-4">Slug</th>
+              <th className="px-4 md:px-6 py-3 md:py-4">Created By</th>
+              <th className="px-4 md:px-6 py-3 md:py-4 text-right">QR Scans</th>
             </tr>
-          ))}
+          </thead>
 
-        </tbody>
+          <tbody>
 
-      </table>
+            {data.map((b) => (
+              <tr
+                key={b._id}
+                className="border-b border-gray-700 hover:bg-gray-700/40 transition"
+              >
+
+                {/* BRAND */}
+                <td className="px-4 md:px-6 py-3 md:py-4">
+                  <div className="flex items-center gap-3">
+
+                    <div className="h-8 w-8 md:h-9 md:w-9 flex items-center justify-center rounded-full bg-blue-600 text-white text-sm font-bold">
+                      {b.name?.charAt(0).toUpperCase()}
+                    </div>
+
+                    <span className="text-white text-sm md:text-base">
+                      {b.name}
+                    </span>
+
+                  </div>
+                </td>
+
+                {/* SLUG */}
+                <td className="px-4 md:px-6 py-3 md:py-4 text-gray-300 text-xs md:text-sm">
+                  {b.slug}
+                </td>
+
+                {/* CREATED BY */}
+                <td className="px-4 md:px-6 py-3 md:py-4">
+                  <span className="inline-flex items-center px-2 md:px-3 py-1 text-xs font-medium rounded-full bg-indigo-500/20 text-indigo-300">
+                    {b.createdBy?.name || "N/A"}
+                  </span>
+                </td>
+
+                {/* SCANS */}
+                <td className="px-4 md:px-6 py-3 md:py-4 text-right">
+                  <span className="px-2 md:px-3 py-1 rounded-full bg-blue-600/20 text-blue-400 text-xs md:text-sm font-medium">
+                    {b.scanCount || 0}
+                  </span>
+                </td>
+
+              </tr>
+            ))}
+
+          </tbody>
+
+        </table>
+
+      </div>
 
     </div>
 

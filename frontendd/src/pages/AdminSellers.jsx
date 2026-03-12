@@ -103,7 +103,7 @@ export default function AdminSellers() {
       shopName: seller.shopName || "",
       address: seller.address || "",
       status: seller.status || "pending",
-    });
+      });
     setEditingId(seller._id);
     setShowModal(true);
   }
@@ -205,9 +205,6 @@ export default function AdminSellers() {
                         <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">
                           Contact
                         </th>
-                        {/* <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">
-                          Shop
-                        </th> */}
                         <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">
                           Status
                         </th>
@@ -343,6 +340,7 @@ export default function AdminSellers() {
                   className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
                 />
               </div>
+
 
               {/* SHOP NAME */}
               {/* <div>

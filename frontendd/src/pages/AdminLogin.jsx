@@ -9,6 +9,7 @@ export default function AdminLogin() {
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
 
+
 async function onSubmit(e) {
   e.preventDefault();
   setErr("");
@@ -16,25 +17,38 @@ async function onSubmit(e) {
   try {
     const res = await api.post("/auth/login", { email, password });
 
-    const token = res.data.data.token;
-    const user = res.data.data.user;
+    const token = res?.data?.data?.token;
+    const user = res?.data?.data?.user;
 
+    console.log("Login Response:", res.data);
+
+    if (!token || !user) {
+      throw new Error("Invalid response from server");
+    }
+
+    // Save auth data
     localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(user));
 
+    // Set axios auth header
     setAuthToken(token);
 
     toast.success("Logged in Successfully!");
-    if (user.role === "ADMIN") {
-      nav("/admin");
-    } else {
-      nav("/admin/brands");
-    }
+
+    // Wait for auth context update
+    setTimeout(() => {
+      if (user?.role?.toUpperCase() === "ADMIN") {
+        nav("/admin", { replace: true });
+      } else {
+        nav("/admin/brands", { replace: true });
+      }
+    }, 150);
 
   } catch (err) {
+    console.log("Login Error:", err);
+
     setErr("Invalid login");
-    console.log("Error:", err);
-    toast.error(err.response?.data?.message || "Login failed");
+    toast.error(err?.response?.data?.message || "Login failed");
   }
 }
   return (

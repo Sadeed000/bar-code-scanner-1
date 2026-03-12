@@ -25,12 +25,24 @@ const BrandProfileSchema = new mongoose.Schema(
     name: String,
     slug: { type: String, unique: true },
     tagline: String,
+    // brand owner contact
+    ownerName: String,
+    ownerPhone: String,
+    // watermark image shown on public profile
+    watermarkUrl: String,
+    // payment data migrated from sellers
+    paymentType: { type: String, enum: ["online", "cash"], default: "cash" },
+    amount: { type: Number, default: 0 },
     headline: String,
     headlineAccent: String,
     subtext: String,
     logoUrl: String,
     // ⭐ ADD THIS
     googleReviewUrl: {
+      type: String,
+      default: "",
+    },
+    patPoojaUrl:{
       type: String,
       default: "",
     },
@@ -48,7 +60,11 @@ category: {
   default: "cafe",
 },
     qrCodeUrl: String, // generated QR image
-
+gallery: [
+  {
+    type: String,
+  }
+],
     theme: {
       accentColor: { type: String, default: "#B08D57" },
     },

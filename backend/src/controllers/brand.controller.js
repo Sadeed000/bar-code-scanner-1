@@ -26,6 +26,8 @@ const BrandSchema = z.object({
   name: z.string().min(2),
   slug: z.string().optional(),
   tagline: z.string().optional(),
+  ownerName: z.string().optional(),
+  ownerPhone: z.string().optional(),
   // payment info added per new requirement
   paymentType: z.enum(["online", "cash"]).optional(),
   amount: z.coerce.number().nonnegative().optional(),
@@ -35,6 +37,7 @@ const BrandSchema = z.object({
   logoUrl: z.string().optional(),
   // ⭐ ADD THIS
   googleReviewUrl: z.string().url().or(z.literal("")).optional(),
+  patPoojaUrl: z.string().url().or(z.literal("")).optional(),
   aboutUs: z.string().optional(),
   contactNumber: z.string().optional(),
   privacyPolicy: z.string().optional(),

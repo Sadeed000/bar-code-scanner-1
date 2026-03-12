@@ -24,7 +24,11 @@ export default function AdminEditBrand() {
       const res = await api.get("/brands");
       const found = res.data.find((x) => x._id === id);
       if (found) {
-        setForm(found);
+        setForm({
+          ownerName: "",
+          ownerPhone: "",
+          ...found,
+        });
         // we can also fetch current scan count for this brand
         try {
           const countRes = await api.get(`/qr-code/analytics/brand/${found.slug}`);
@@ -54,13 +58,39 @@ export default function AdminEditBrand() {
 
       setSaving(true);
       const formData = new FormData();
-      Object.keys(form).forEach((key) => {
-        if (key === "logoFile") {
-          if (form.logoFile) formData.append("logo", form.logoFile);
-        } else if (key !== "logoUrl") {
-          formData.append(key, typeof form[key] === "string" ? form[key] : JSON.stringify(form[key]));
-        }
-      });
+
+Object.keys(form).forEach((key) => {
+
+  if (key === "logoFile") {
+    if (form.logoFile) formData.append("logo", form.logoFile);
+
+  } else if (key === "watermarkFile") {
+    if (form.watermarkFile) formData.append("watermark", form.watermarkFile);
+
+  } else if (key === "galleryFiles") {
+    if (form.galleryFiles && form.galleryFiles.length > 0) {
+      form.galleryFiles.forEach(file => formData.append("gallery", file));
+    }
+
+  } else if (
+    key !== "logoUrl" &&
+    key !== "watermarkUrl" &&
+    key !== "gallery"
+  ) {
+    formData.append(
+      key,
+      typeof form[key] === "string"
+        ? form[key]
+        : JSON.stringify(form[key])
+    );
+  }
+
+});
+
+/* ⭐ ADD THIS */
+if (form.gallery && form.gallery.length > 0) {
+  formData.append("existingGallery", JSON.stringify(form.gallery));
+}
 
       await api.put(`/brands/${id}`, formData);
       toast.success("Brand updated successfully!");

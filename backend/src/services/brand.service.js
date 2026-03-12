@@ -64,6 +64,7 @@ return BrandProfile
     .sort({ createdAt: -1 });
 }
 
+
 async function listBrandsPaged(user, options = {}) {
   const {
     page = 1,
@@ -89,6 +90,9 @@ async function listBrandsPaged(user, options = {}) {
       { name: { $regex: term, $options: "i" } },
       { slug: { $regex: term, $options: "i" } },
       { category: { $regex: term, $options: "i" } },
+      { ownerName: { $regex: term, $options: "i" } },
+      { ownerPhone: { $regex: term, $options: "i" } },
+      { contactNumber: { $regex: term, $options: "i" } },
     ];
   }
 
@@ -101,14 +105,13 @@ async function listBrandsPaged(user, options = {}) {
     if (endDate) {
       const d = new Date(endDate);
       if (!Number.isNaN(d.getTime())) {
-        const endExclusive = new Date(d);
-        endExclusive.setDate(endExclusive.getDate() + 1);
-        createdAt.$lt = endExclusive;
+        // endDate is already expected to be an exclusive upper bound
+        createdAt.$lt = d;
       }
     }
     if (Object.keys(createdAt).length > 0) filter.createdAt = createdAt;
   }
-
+  
   const [items, total] = await Promise.all([
     BrandProfile.find(filter)
       .populate("createdBy", "name email")
