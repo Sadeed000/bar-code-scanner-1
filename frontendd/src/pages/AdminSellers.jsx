@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, setAuthToken } from "../api/client";
 import { toast } from "react-hot-toast";
+import { Pencil, Trash2 } from "lucide-react";
+import ConfirmDialog from "../component/ConfirmDialog";
 
 export default function AdminSellers() {
   const nav = useNavigate();
@@ -11,6 +13,8 @@ export default function AdminSellers() {
   const [editingId, setEditingId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
+  const [confirmOpen, setConfirmOpen] = useState(false);
+const [sellerToDelete, setSellerToDelete] = useState(null);
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -75,25 +79,28 @@ export default function AdminSellers() {
     }
   }
 
-  async function deleteSeller(id) {
-    if (!window.confirm("Are you sure you want to delete this seller?")) return;
-
-    try {
-      await api.delete(`/sellers/${id}`);
-      toast.success("Seller deleted");
-      fetchSellers();
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to delete seller");
-    }
+async function handleConfirmDelete() {
+  try {
+    await api.delete(`/sellers/${sellerToDelete}`);
+    toast.success("Seller deleted");
+    fetchSellers();
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to delete seller");
+  } finally {
+    setConfirmOpen(false);
+    setSellerToDelete(null);
   }
-
+}
   function openCreateModal() {
     resetForm();
     setEditingId(null);
     setShowModal(true);
   }
-
+function deleteSeller(id) {
+  setSellerToDelete(id);
+  setConfirmOpen(true);
+}
   function openEditModal(seller) {
     setForm({
       email: seller.email,
@@ -230,12 +237,7 @@ export default function AdminSellers() {
                               <p>{seller.phone || "-"}</p>
                             </div>
                           </td>
-                          {/* <td className="px-6 py-4">
-                            <div className="text-sm text-gray-300">
-                              <p className="font-medium">{seller.shopName || "-"}</p>
-                              <p className="text-gray-500">{seller.address || "-"}</p>
-                            </div>
-                          </td> */}
+                     
                           <td className="px-6 py-4">
               <td className="px-6 py-4">
 <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-green-600/20 text-green-400">
@@ -243,22 +245,29 @@ export default function AdminSellers() {
 </span>
 </td>
                           </td>
-                          <td className="px-6 py-4">
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => openEditModal(seller)}
-                                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm font-medium transition cursor-pointer"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                onClick={() => deleteSeller(seller._id)}
-                                className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm font-medium transition cursor-pointer"
-                              >
-                                Delete
-                              </button>
-                            </div>
-                          </td>
+<td className="px-4 md:px-6 py-4">
+  <div className="flex gap-3">
+
+    {/* Edit */}
+    <button
+      onClick={() => openEditModal(seller)}
+      className="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-900/40 hover:bg-blue-800 text-blue-400 hover:text-blue-300 transition cursor-pointer"
+      title="Edit"
+    >
+      <Pencil size={18} />
+    </button>
+
+    {/* Delete */}
+    <button
+      onClick={() => deleteSeller(seller._id)}
+      className="w-10 h-10 flex items-center justify-center rounded-xl bg-red-900/40 hover:bg-red-800 text-red-400 hover:text-red-300 transition cursor-pointer"
+      title="Delete"
+    >
+      <Trash2 size={18} />
+    </button>
+
+  </div>
+</td>
                         </tr>
                       ))}
                     </tbody>
@@ -406,6 +415,17 @@ export default function AdminSellers() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+  open={confirmOpen}
+  title="Delete Seller"
+  message="Are you sure you want to delete this seller? This action cannot be undone."
+  onCancel={() => {
+    setConfirmOpen(false);
+    setSellerToDelete(null);
+  }}
+  onConfirm={handleConfirmDelete}
+/>
     </div>
     </div>
   );

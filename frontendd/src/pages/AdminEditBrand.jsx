@@ -104,9 +104,8 @@ if (form.gallery && form.gallery.length > 0) {
   }
 
   function logout() {
-    localStorage.removeItem("token");
     setAuthToken(null);
-    nav("/admin/login");
+    nav("/admin/login", { replace: true });
   }
 
   if (loading) {

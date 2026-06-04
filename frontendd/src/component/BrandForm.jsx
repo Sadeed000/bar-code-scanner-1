@@ -1,6 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { api } from "../api/client";
+import toast from "react-hot-toast";
 
 export default function BrandForm({ form, setForm }) {
+
+  const [categories, setCategories] = useState([]);
+  const [categorySearch, setCategorySearch] = useState("");
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+
+  const dropdownRef = useRef(null);
 
   function updateLink(index, field, value) {
     const updated = [...form.links];
@@ -39,6 +47,45 @@ export default function BrandForm({ form, setForm }) {
       ],
     });
   }
+
+  async function fetchCategories() {
+    try {
+      const res = await api.get("/reviews/categories");
+      setCategories(res.data);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async function createCategory(name) {
+    try {
+      await api.post("/reviews/category", {
+        category: name
+      });
+      toast.success("Category created");
+      fetchCategories();
+    } catch (err) {
+      toast.error("Category already exists");
+    }
+  }
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowCategoryDropdown(false);
+        setCategorySearch("");
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const inputClass = "w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition";
   const labelClass = "block text-xs md:text-sm font-medium text-gray-300 mb-2";
@@ -106,22 +153,47 @@ export default function BrandForm({ form, setForm }) {
             />
           </div> */}
 
-          <div>
-            <label className={labelClass}>Category</label>
-            <select
-              className={inputClass}
-              value={form?.category || "cafe"}
-              onChange={(e) =>
-                setForm({ ...form, category: e.target.value })
-              }
+         <div>
+  <label className={labelClass}>Category</label>
+  <div className="relative" ref={dropdownRef}>
+    <div
+      onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition cursor-pointer"
+    >
+      {form?.category || "Choose category"}
+    </div>
+
+    {showCategoryDropdown && (
+      <div className="absolute w-full bg-gray-800 border border-gray-600 rounded-lg mt-1 max-h-60 overflow-y-auto z-50">
+        
+        <input
+          type="text"
+          placeholder="Search category..."
+          value={categorySearch}
+          onChange={(e) => setCategorySearch(e.target.value)}
+          className="w-full px-4 py-2 bg-gray-700 text-white border-b border-gray-600 outline-none"
+        />
+
+        {categories
+          .filter(c => c.toLowerCase().includes(categorySearch.toLowerCase()))
+          .map((c, i) => (
+            <div
+              key={i}
+              onClick={() => {
+                setForm({ ...form, category: c });
+                setShowCategoryDropdown(false);
+                setCategorySearch("");
+              }}
+              className="px-4 py-2 text-gray-200 hover:bg-gray-600 hover:text-white cursor-pointer text-sm transition-colors"
             >
-              <option value="cafe">Cafe</option>
-              <option value="restaurant">Restaurant</option>
-              <option value="gym">Gym</option>
-              <option value="shop">Shop</option>
-              <option value="hotel">Hotel</option>
-            </select>
-          </div>
+              {c}
+            </div>
+          ))}
+
+      </div>
+    )}
+  </div>
+</div>
 
           {/* PAYMENT INFO */}
           <div>
@@ -251,7 +323,7 @@ export default function BrandForm({ form, setForm }) {
 
 
 {/* GALLERY UPLOAD */}
-<div className="sm:col-span-2 lg:col-span-2">
+{/* <div className="sm:col-span-2 lg:col-span-2">
   <label className={labelClass}>Gallery Images (Max 6)</label>
 
   <div className="flex flex-wrap gap-2">
@@ -296,7 +368,6 @@ export default function BrandForm({ form, setForm }) {
     )}
   </div>
 
-  {/* EXISTING IMAGES (Edit Mode) */}
   {form?.gallery?.length > 0 && (
     <div className="grid grid-cols-3 gap-2 mt-3">
       {form.gallery.map((img, i) => (
@@ -310,7 +381,6 @@ export default function BrandForm({ form, setForm }) {
     </div>
   )}
 
-  {/* NEW UPLOADED FILES PREVIEW */}
   {form?.galleryFiles?.length > 0 && (
     <div className="grid grid-cols-3 gap-2 mt-3">
       {form.galleryFiles.map((file, i) => (
@@ -323,7 +393,9 @@ export default function BrandForm({ form, setForm }) {
       ))}
     </div>
   )}
-</div>
+</div> */}
+
+
       {/* GALLERY UPLOAD */}
       {/* <div>
         <h3 className="text-base md:text-lg font-semibold text-white mb-4">Gallery (Up to 6 images)</h3>
@@ -388,12 +460,12 @@ export default function BrandForm({ form, setForm }) {
                 onChange={(e) => updateLink(i, "url", e.target.value)}
                 className={inputClass}
               />
-              <input
+              {/* <input
                 placeholder="Icon URL"
                 value={l.icon}
                 onChange={(e) => updateLink(i, "icon", e.target.value)}
                 className={inputClass}
-              />
+              /> */}
               {/* <input
                 placeholder="BG Color"
                 value={l.bg}

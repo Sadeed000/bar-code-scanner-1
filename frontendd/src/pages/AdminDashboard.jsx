@@ -39,7 +39,7 @@ const [showScanner, setShowScanner] = useState(false);  // ← Add this line
       { key: "instagram", label: "Instagram", url: "", enabled: true },
       { key: "facebook", label: "Facebook", url: "", enabled: true },
       { key: "whatsapp", label: "WhatsApp", url: "", enabled: true },
-      { key: "booking", label: "Booking.com", url: "", enabled: true },
+      { key: "booking", label: "Booking", url: "", enabled: true },
       { key: "zomato", label: "Zomato", url: "", enabled: true },
       { key: "google", label: "Google", url: "", enabled: true },
       { key: "tripadvisor", label: "Tripadvisor", url: "", enabled: true },
@@ -103,9 +103,8 @@ const [showScanner, setShowScanner] = useState(false);  // ← Add this line
   }
 
   function logout() {
-    localStorage.removeItem("token");
     setAuthToken(null);
-    nav("/admin/login");
+    nav("/admin/login", { replace: true });
   }
 
   function updateLink(index, field, value) {
@@ -135,7 +134,7 @@ const [showScanner, setShowScanner] = useState(false);  // ← Add this line
         { key: "instagram", label: "Instagram", url: "", enabled: true },
         { key: "facebook", label: "Facebook", url: "", enabled: true },
         { key: "whatsapp", label: "WhatsApp", url: "", enabled: true },
-        { key: "booking", label: "Booking.com", url: "", enabled: true },
+        { key: "booking", label: "Booking", url: "", enabled: true },
         { key: "zomato", label: "Zomato", url: "", enabled: true },
         { key: "google", label: "Google", url: "", enabled: true },
         { key: "tripadvisor", label: "Tripadvisor", url: "", enabled: true },

@@ -44,9 +44,11 @@ const BrandSchema = z.object({
   termsConditions: z.string().optional(),
   links: z.array(LinkSchema).optional(),
   reviews: z.array(ReviewSchema).optional(),
-  category: z
-    .enum(["cafe", "restaurant", "gym", "shop", "hotel"])
-    .optional(),
+category: z
+  .string()
+  .trim()
+  .min(1, "Category is required")
+  .optional(),
   gallery: z.array(z.string()).optional(),
   theme: z.object({
     accentColor: z.string().optional(),
@@ -104,7 +106,7 @@ if (req.files && req.files.gallery) {
 
   } catch (error) {
     res.status(500).json({
-      message: "Server error",
+      message: error.message || "Server error",
       error: error.message,
     });
   }

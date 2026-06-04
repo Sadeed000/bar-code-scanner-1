@@ -42,9 +42,8 @@ export default function AdminAnalytics() {
   }
 
   function logout() {
-    localStorage.removeItem("token");
     setAuthToken(null);
-    nav("/admin/login");
+    nav("/admin/login", { replace: true });
   }
 
   if (loading) {

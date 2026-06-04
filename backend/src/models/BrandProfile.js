@@ -28,6 +28,10 @@ const BrandProfileSchema = new mongoose.Schema(
     // brand owner contact
     ownerName: String,
     ownerPhone: String,
+    ownerEmail: String,
+    // business address and website
+    address: String,
+    website: String,
     // watermark image shown on public profile
     watermarkUrl: String,
     // payment data migrated from sellers

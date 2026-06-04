@@ -29,11 +29,19 @@ exports.uploadReviews = async (req, res) => {
       .pipe(csv()) // safer than forcing headers
       .on("data", (row) => {
 
-        if (row.review && row.review.trim()) {
-          reviews.push(row.review.trim());
-        }
+  // normalize keys
+  const normalizedRow = {};
+  Object.keys(row).forEach((key) => {
+    normalizedRow[key.toLowerCase()] = row[key];
+  });
 
-      })
+  const reviewText = normalizedRow.review || normalizedRow.reviews;
+
+  if (reviewText && reviewText.trim()) {
+    reviews.push(reviewText.trim());
+  }
+
+})
       .on("end", async () => {
 
         if (reviews.length === 0) {
@@ -93,7 +101,6 @@ exports.getReviewSummary = async (req, res) => {
 
 };
 
-
 exports.getCategoryReviews = async (req, res) => {
   try {
 
@@ -103,13 +110,26 @@ exports.getCategoryReviews = async (req, res) => {
 
     const doc = await Review.findOne({ category });
 
-    if (!doc) {
+    if (!doc || !Array.isArray(doc.reviews) || doc.reviews.length === 0) {
       return res.json([]);
     }
 
-    const reviews = doc.reviews.slice(skip, skip + limit);
+    const total = doc.reviews.length;
 
-    res.json(reviews);
+    // ✅ shuffle reviews for randomness
+    const shuffledReviews = [...doc.reviews].sort(() => 0.5 - Math.random());
+
+    let reviews = [];
+
+    if (skip < total) {
+      reviews = shuffledReviews.slice(skip, skip + limit);
+    }
+
+    if (reviews.length === 0) {
+      reviews = shuffledReviews.slice(0, limit);
+    }
+
+    res.json({ reviews, total });
 
   } catch (err) {
 

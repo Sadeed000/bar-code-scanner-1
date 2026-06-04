@@ -6,7 +6,7 @@ import BrandForm from "../component/BrandForm";
 import ConfirmDialog from "../component/ConfirmDialog";
 import useDebounce from "../utils/useDebounce";
 import { QrCode, Download, X } from "lucide-react";
-
+import { Pencil, Trash2 } from "lucide-react";
 export default function AdminBrands() {
   const nav = useNavigate();
   const [brands, setBrands] = useState([]);
@@ -16,11 +16,11 @@ export default function AdminBrands() {
   const debouncedSearchTerm = useDebounce(searchTerm, 900);
 
   const [confirmOpen, setConfirmOpen] = useState(false);
-const [deleteId, setDeleteId] = useState(null);
-const [qrModal, setQrModal] = useState(false);
-const [selectedBrand, setSelectedBrand] = useState(null);
-const user = JSON.parse(localStorage.getItem("user") || "{}");
-  const brandLogo = import.meta.env.VITE_APP_BRAND_LOGO_URL ;
+  const [deleteId, setDeleteId] = useState(null);
+  const [qrModal, setQrModal] = useState(false);
+  const [selectedBrand, setSelectedBrand] = useState(null);
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const brandLogo = import.meta.env.VITE_APP_BRAND_LOGO_URL;
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(5);
@@ -49,7 +49,7 @@ const user = JSON.parse(localStorage.getItem("user") || "{}");
       { key: "instagram", label: "Instagram", url: "", enabled: true },
       { key: "facebook", label: "Facebook", url: "", enabled: true },
       { key: "whatsapp", label: "WhatsApp", url: "", enabled: true },
-      { key: "booking", label: "Booking.com", url: "", enabled: true },
+      { key: "booking", label: "Booking", url: "", enabled: true },
       { key: "zomato", label: "Zomato", url: "", enabled: true },
       { key: "google", label: "Google", url: "", enabled: true },
       { key: "tripadvisor", label: "Tripadvisor", url: "", enabled: true },
@@ -209,22 +209,29 @@ const user = JSON.parse(localStorage.getItem("user") || "{}");
       fetchBrands({ page: 1 });
     } catch (err) {
       console.error(err);
-      toast.error("Failed to create brand");
+
+      const message = err.response?.data?.message || "";
+
+      if (message.includes("E11000") || message.includes("duplicate key")) {
+        toast.error("Brand already exists with this name");
+      } else {
+        toast.error(message || "Failed to create brand");
+      }
     }
   }
 
-async function handleDelete() {
-  try {
-    await api.delete(`/brands/${deleteId}`);
-    toast.success("Brand deleted");
-    fetchBrands({ page: 1 });
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to delete brand");
-  } finally {
-    setConfirmOpen(false);
+  async function handleDelete() {
+    try {
+      await api.delete(`/brands/${deleteId}`);
+      toast.success("Brand deleted");
+      fetchBrands({ page: 1 });
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete brand");
+    } finally {
+      setConfirmOpen(false);
+    }
   }
-}
 
   function openCreateModal() {
     setForm({
@@ -249,7 +256,7 @@ async function handleDelete() {
         { key: "instagram", label: "Instagram", url: "", enabled: true },
         { key: "facebook", label: "Facebook", url: "", enabled: true },
         { key: "whatsapp", label: "WhatsApp", url: "", enabled: true },
-        { key: "booking", label: "Booking.com", url: "", enabled: true },
+        { key: "booking", label: "Booking", url: "", enabled: true },
         { key: "zomato", label: "Zomato", url: "", enabled: true },
         { key: "google", label: "Google", url: "", enabled: true },
         { key: "tripadvisor", label: "Tripadvisor", url: "", enabled: true },
@@ -260,15 +267,14 @@ async function handleDelete() {
   }
 
   function logout() {
-    localStorage.removeItem("token");
     setAuthToken(null);
-    nav("/admin/login");
+    nav("/admin/login", { replace: true });
   }
 
   function deleteBrand(id) {
-  setDeleteId(id);
-  setConfirmOpen(true);
-}
+    setDeleteId(id);
+    setConfirmOpen(true);
+  }
 
   function openQRModal(brand) {
     setSelectedBrand(brand);
@@ -299,246 +305,261 @@ async function handleDelete() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-            {/* HEADER */}
-            <div className="mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">Brands</h1>
-                <p className="text-gray-400 text-sm md:text-base">Manage all your brand profiles</p>
-              </div>
-              <button
-                onClick={openCreateModal}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition cursor-pointer"
-              >
-                + Create Brand
-              </button>
-            </div>
-
-            {/* FILTERS */}
-            <div className="mb-4 bg-gray-800 border border-gray-700 rounded-xl px-4 py-3">
-              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                {/* Left: search + timeframe */}
-                <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
-                  <input
-                    type="text"
-                    placeholder="Search by name / slug / category..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
-                  />
-                  <select
-                    value={timeframe}
-                    onChange={(e) => setTimeframe(e.target.value)}
-                    className="w-full sm:w-44 px-3 py-2.5 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500 transition"
-                  >
-                    <option value="all">All time</option>
-                    <option value="today">Today</option>
-                    <option value="yesterday">Yesterday</option>
-                    <option value="week">Last 7 days</option>
-                    <option value="month">Last 30 days</option>
-                  </select>
-                </div>
-
-                {/* Right: info text + page size + clear */}
-                <div className="flex flex-wrap items-center justify-between gap-3 md:justify-end md:pl-4">
-                  <div className="text-xs sm:text-sm text-gray-400">
-                    Showing <span className="text-gray-200 font-medium">{brands.length}</span> of{" "}
-                    <span className="text-gray-200 font-medium">{total}</span> brands
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <select
-                      value={limit}
-                      onChange={(e) => setLimit(Number(e.target.value))}
-                      className="px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-xs sm:text-sm focus:outline-none focus:border-blue-500 transition"
-                    >
-                      <option value={5}>5 / page</option>
-                      <option value={10}>10 / page</option>
-                      <option value={20}>20 / page</option>
-                      <option value={50}>50 / page</option>
-                    </select>
-
-                    <button
-                      onClick={() => {
-                        setSearchTerm("");
-                        setTimeframe("all");
-                        setPage(1);
-                      }}
-                      className="px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-gray-200 text-xs sm:text-sm hover:border-blue-500 transition cursor-pointer"
-                    >
-                      Clear
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* TABLE */}
-            {brands.length === 0 ? (
-              <div className="bg-gray-800 border border-gray-700 rounded-xl p-12 text-center">
-                <p className="text-gray-400 text-lg">
-                  {searchTerm || timeframe !== "all" ? "No brands match your filters" : "No brands created yet"}
-                </p>
-              </div>
-            ) : (
-              <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="min-w-full">
-                    <thead className="bg-gray-900/60">
-                      <tr className="text-left text-xs text-gray-400">
-                        <th className="px-2 md:px-4 py-3 font-semibold">Brand</th>
-                        <th className="px-2 md:px-4 py-3 font-semibold">Category</th>
-                        <th className="px-2 md:px-4 py-3 font-semibold">Payment</th>
-                        <th className="px-2 md:px-4 py-3 font-semibold">Links</th>
-                        <th className="px-2 md:px-4 py-3 font-semibold">QR Scans</th>
-                        <th className="hidden md:table-cell px-2 md:px-4 py-3 font-semibold">Created</th>
-                        <th className="px-2 md:px-4 py-3 font-semibold text-right">Actions</th>
-                      </tr>
-                    </thead>
-
-                    <tbody className="divide-y divide-gray-700">
-                      {brands.map((brand) => (
-                        <tr key={brand._id} className="hover:bg-gray-900/40 transition">
-                          <td className="px-2 md:px-4 py-4">
-                            <div className="flex items-center gap-2 md:gap-3 min-w-[140px] md:min-w-[200px]">
-                              <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg overflow-hidden bg-gray-700 border border-gray-600 flex-shrink-0">
-                                {brand.logoUrl ? (
-                                  <img
-                                    src={buildLogoSrc(brand)}
-                                    alt={brand.name}
-                                    className="h-full w-full object-cover"
-                                    loading="lazy"
-                                  />
-                                ) : (
-                                  <div className="h-full w-full flex items-center justify-center text-xl">🏷️</div>
-                                )}
-                              </div>
-
-                              <div className="min-w-0">
-                                <div className="flex flex-col gap-0.5">
-                                  <div className="flex items-center gap-2">
-                                    <div className="text-white font-semibold truncate">{brand.name}</div>
-                                  </div>
-                                  {(brand.ownerName || brand.createdBy?.name) && (
-                                    <div className="text-[11px] text-indigo-300 truncate">
-                                      {brand.ownerName || brand.createdBy?.name}
-                                    </div>
-                                  )}
-                                </div>
-                                <div className="text-xs text-gray-400 truncate">/p/{brand.slug}</div>
-                                <div className="text-xs text-gray-500 truncate">
-                                  {brand.contactNumber ? `📞 ${brand.contactNumber}` : "—"}{" "}
-                                  {brand.tagline ? `• ${brand.tagline}` : ""}
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-
-                          <td className="px-2 md:px-4 py-4">
-                            {brand.category ? (
-                              <span className="bg-blue-600/20 text-blue-300 text-xs px-2 md:px-3 py-1 rounded-full">
-                                {brand.category}
-                              </span>
-                            ) : (
-                              <span className="text-gray-500 text-sm">—</span>
-                            )}
-                          </td>
-
-                          <td className="px-2 md:px-4 py-4">
-                            <div className="text-xs md:text-sm text-gray-200">
-                              {brand.paymentType ? brand.paymentType : "cash"}
-                            </div>
-                            <div className="text-xs text-green-400 font-medium">₹{brand.amount || 0}</div>
-                          </td>
-
-                          <td className="px-2 md:px-4 py-4">
-                            <div className="text-xs md:text-sm text-gray-200">{brand.links?.length || 0}</div>
-                            <div className="text-xs text-gray-500 hidden md:block">
-                              {brand.googleReviewUrl ? "Google reviews set" : "Google reviews not set"}
-                            </div>
-                          </td>
-
-                          <td className="px-2 md:px-4 py-4">
-                            <div className="text-sm text-purple-300 font-medium">{brand.scanCount || 0}</div>
-                          </td>
-
-                          <td className="hidden md:table-cell px-2 md:px-4 py-4">
-                            <div className="text-xs md:text-sm text-gray-200">{formatDateTime(brand.createdAt)}</div>
-                          </td>
-
-                          <td className="px-2 md:px-4 py-4">
-                            <div className="flex justify-end gap-1 md:gap-2 flex-wrap md:flex-nowrap">
-                              {brand.qrCodeUrl && (
-                                <button
-                                  onClick={() => openQRModal(brand)}
-                                  className="bg-purple-600 hover:bg-purple-700 text-white px-2 md:px-3 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition cursor-pointer flex items-center gap-1"
-                                  title="View QR Code"
-                                >
-                                  <QrCode size={14} className="md:w-4 md:h-4" />
-                                  <span className="hidden md:inline">QR</span>
-                                </button>
-                              )}
-                              <button
-                                onClick={() => nav(`/admin/brands/${brand._id}`)}
-                                className="bg-blue-600 hover:bg-blue-700 text-white px-2 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition cursor-pointer"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                onClick={() => deleteBrand(brand._id)}
-                                className="bg-red-600 hover:bg-red-700 text-white px-2 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition cursor-pointer"
-                              >
-                                Delete
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* PAGINATION */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 py-3 bg-gray-900/40 border-t border-gray-700">
-                  <div className="text-sm text-gray-400">
-                    Page <span className="text-gray-200 font-medium">{page}</span> of{" "}
-                    <span className="text-gray-200 font-medium">{totalPages}</span>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setPage(1)}
-                      disabled={page <= 1}
-                      className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-200 disabled:opacity-40 hover:border-blue-500 transition cursor-pointer"
-                    >
-                      First
-                    </button>
-                    <button
-                      onClick={() => setPage((p) => Math.max(1, p - 1))}
-                      disabled={page <= 1}
-                      className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-200 disabled:opacity-40 hover:border-blue-500 transition cursor-pointer"
-                    >
-                      Prev
-                    </button>
-                    <button
-                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                      disabled={page >= totalPages}
-                      className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-200 disabled:opacity-40 hover:border-blue-500 transition cursor-pointer"
-                    >
-                      Next
-                    </button>
-                    <button
-                      onClick={() => setPage(totalPages)}
-                      disabled={page >= totalPages}
-                      className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-200 disabled:opacity-40 hover:border-blue-500 transition cursor-pointer"
-                    >
-                      Last
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
+        {/* HEADER */}
+        <div className="mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">Brands</h1>
+            <p className="text-gray-400 text-sm md:text-base">Manage all your brand profiles</p>
           </div>
-  
+          <button
+            onClick={openCreateModal}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition cursor-pointer"
+          >
+            + Create Brand
+          </button>
+        </div>
+
+        {/* FILTERS */}
+        <div className="mb-4 bg-gray-800 border border-gray-700 rounded-xl px-4 py-3">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            {/* Left: search + timeframe */}
+            <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
+              <input
+                type="text"
+                placeholder="Search by name / slug / category..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-4 py-2.5 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
+              />
+              <select
+                value={timeframe}
+                onChange={(e) => setTimeframe(e.target.value)}
+                className="w-full sm:w-44 px-3 py-2.5 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500 transition"
+              >
+                <option value="all">All time</option>
+                <option value="today">Today</option>
+                <option value="yesterday">Yesterday</option>
+                <option value="week">Last 7 days</option>
+                <option value="month">Last 30 days</option>
+              </select>
+            </div>
+
+            {/* Right: info text + page size + clear */}
+            <div className="flex flex-wrap items-center justify-between gap-3 md:justify-end md:pl-4">
+              <div className="text-xs sm:text-sm text-gray-400">
+                Showing <span className="text-gray-200 font-medium">{brands.length}</span> of{" "}
+                <span className="text-gray-200 font-medium">{total}</span> brands
+              </div>
+
+              <div className="flex items-center gap-2">
+                <select
+                  value={limit}
+                  onChange={(e) => setLimit(Number(e.target.value))}
+                  className="px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-xs sm:text-sm focus:outline-none focus:border-blue-500 transition"
+                >
+                  <option value={5}>5 / page</option>
+                  <option value={10}>10 / page</option>
+                  <option value={20}>20 / page</option>
+                  <option value={50}>50 / page</option>
+                </select>
+
+                <button
+                  onClick={() => {
+                    setSearchTerm("");
+                    setTimeframe("all");
+                    setPage(1);
+                  }}
+                  className="px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-gray-200 text-xs sm:text-sm hover:border-blue-500 transition cursor-pointer"
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* TABLE */}
+        {brands.length === 0 ? (
+          <div className="bg-gray-800 border border-gray-700 rounded-xl p-12 text-center">
+            <p className="text-gray-400 text-lg">
+              {searchTerm || timeframe !== "all" ? "No brands match your filters" : "No brands created yet"}
+            </p>
+          </div>
+        ) : (
+          <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead className="bg-gray-900/60">
+                  <tr className="text-left text-xs text-gray-400">
+                    <th className="px-3 md:px-4 py-3 font-semibold w-[260px]">Brand</th>
+                    <th className="px-3 md:px-4 py-3 font-semibold w-[120px]">Category</th>
+                    <th className="px-2 md:px-4 py-3 font-semibold">Payment</th>
+                    <th className="px-2 md:px-4 py-3 font-semibold">Links</th>
+                    <th className="px-2 md:px-4 py-3 font-semibold">QR Scans</th>
+                    <th className="hidden md:table-cell px-2 md:px-4 py-3 font-semibold">Created</th>
+                    <th className="px-2 md:px-4 py-3 font-semibold text-center">QR</th>
+
+                    <th className="pr-5 md:px-4 py-3 font-semibold text-center">
+                      Actions
+                    </th>                      </tr>
+                </thead>
+
+                <tbody className="divide-y divide-gray-700">
+                  {brands.map((brand) => (
+                    <tr key={brand._id} className="hover:bg-gray-900/40 transition">
+                      <td className="px-2 md:px-4 py-4">
+                        <div className="flex items-center gap-2 md:gap-3 max-w-[220px]">                              <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg overflow-hidden bg-gray-700 border border-gray-600 flex-shrink-0">
+                          {brand.logoUrl ? (
+                            <img
+                              src={buildLogoSrc(brand)}
+                              alt={brand.name}
+                              className="h-full w-full object-cover"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="h-full w-full flex items-center justify-center text-xl">🏷️</div>
+                          )}
+                        </div>
+
+                          <div className="min-w-0">
+                            <div className="flex flex-col gap-0.5">
+                              <div className="flex items-center gap-2">
+                                <div className="text-white font-semibold truncate">{brand.name}</div>
+                              </div>
+                              {(brand.ownerName || brand.createdBy?.name) && (
+                                <div className="text-[11px] text-indigo-300 truncate">
+                                  {brand.ownerName || brand.createdBy?.name}
+                                </div>
+                              )}
+                            </div>
+                            <div className="text-xs text-gray-400 truncate">/p/{brand.slug}</div>
+                            <div className="text-xs text-gray-500 truncate">
+                              {brand.contactNumber ? `📞 ${brand.contactNumber}` : "—"}{" "}
+                              {brand.tagline ? `• ${brand.tagline}` : ""}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="px-2 md:px-4 py-4">
+                        {brand.category ? (
+                          <span className="bg-blue-600/20 text-blue-300 text-xs px-2 md:px-3 py-1 rounded-full">
+                            {brand.category}
+                          </span>
+                        ) : (
+                          <span className="text-gray-500 text-sm">—</span>
+                        )}
+                      </td>
+
+                      <td className="px-2 md:px-4 py-4">
+                        <div className="text-xs md:text-sm text-gray-200">
+                          {brand.paymentType ? brand.paymentType : "cash"}
+                        </div>
+                        <div className="text-xs text-green-400 font-medium">₹{brand.amount || 0}</div>
+                      </td>
+
+                      <td className="px-2 md:px-4 py-4">
+                        <div className="text-xs md:text-sm text-gray-200">{brand.links?.length || 0}</div>
+                        <div className="text-xs text-gray-500 hidden md:block">
+                          {brand.googleReviewUrl ? "Google reviews set" : "Google reviews not set"}
+                        </div>
+                      </td>
+
+                      <td className="px-2 md:px-4 py-4">
+                        <div className="text-sm text-purple-300 font-medium">{brand.scanCount || 0}</div>
+                      </td>
+
+                      <td className="hidden md:table-cell px-2 md:px-4 py-4">
+                        <div className="text-xs md:text-sm text-gray-200">{formatDateTime(brand.createdAt)}</div>
+                      </td>
+                      <td className="px-2 md:px-4w text-center">
+                        {brand.qrCodeUrl ? (
+                          <button
+                            onClick={() => openQRModal(brand)}
+                            className="flex items-center justify-center mx-auto
+      w-10 h-10 rounded-lg
+      bg-gradient-to-br from-indigo-700 via-purple-700 to-fuchsia-700
+      hover:from-indigo-600 hover:via-purple-600 hover:to-fuchsia-600
+      text-white shadow-md hover:shadow-purple-900/40
+      transition-all duration-200"
+                            title="View QR"
+                          >
+                            <QrCode size={18} />
+                          </button>
+                        ) : (
+                          <span className="text-gray-500 text-sm">—</span>
+                        )}
+                      </td>
+
+                      <td className="px-2 md:px-4 py-4">
+                        <div className="flex justify-center gap-2">
+
+                          <button
+                            onClick={() => nav(`/admin/brands/${brand._id}`)}
+                            className="p-2 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 hover:text-blue-300 transition cursor-pointer"
+                            title="Edit Brand"
+                          >
+                            <Pencil size={18} />
+                          </button>
+
+                          <button
+                            onClick={() => deleteBrand(brand._id)}
+                            className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 transition cursor-pointer"
+                            title="Delete Brand"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* PAGINATION */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 py-3 bg-gray-900/40 border-t border-gray-700">
+              <div className="text-sm text-gray-400">
+                Page <span className="text-gray-200 font-medium">{page}</span> of{" "}
+                <span className="text-gray-200 font-medium">{totalPages}</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setPage(1)}
+                  disabled={page <= 1}
+                  className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-200 disabled:opacity-40 hover:border-blue-500 transition cursor-pointer"
+                >
+                  First
+                </button>
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page <= 1}
+                  className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-200 disabled:opacity-40 hover:border-blue-500 transition cursor-pointer"
+                >
+                  Prev
+                </button>
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page >= totalPages}
+                  className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-200 disabled:opacity-40 hover:border-blue-500 transition cursor-pointer"
+                >
+                  Next
+                </button>
+                <button
+                  onClick={() => setPage(totalPages)}
+                  disabled={page >= totalPages}
+                  className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-200 disabled:opacity-40 hover:border-blue-500 transition cursor-pointer"
+                >
+                  Last
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* CREATE BRAND MODAL */}
       {showModal && (
         <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50 p-4">
@@ -567,12 +588,12 @@ async function handleDelete() {
       )}
 
       <ConfirmDialog
-  open={confirmOpen}
-  title="Delete Brand"
-  message="Are you sure you want to delete this brand?"
-  onCancel={() => setConfirmOpen(false)}
-  onConfirm={handleDelete}
-/>
+        open={confirmOpen}
+        title="Delete Brand"
+        message="Are you sure you want to delete this brand?"
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={handleDelete}
+      />
 
       {/* QR CODE MODAL */}
       {qrModal && selectedBrand && (
@@ -628,7 +649,7 @@ async function handleDelete() {
         </div>
       )}
 
-      </div>
+    </div>
 
 
   );

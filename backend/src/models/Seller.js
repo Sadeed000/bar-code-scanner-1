@@ -8,7 +8,7 @@ const SellerSchema = new mongoose.Schema(
     phone: String,
     shopName: String,
     address: String,
-    role: { type: String, enum: ["seller", "admin"], default: "seller" },
+    role: { type: String, enum: ["SELLER", "ADMIN"], default: "SELLER" },
     paymentType: { type: String, enum: ["online", "cash"], default: "cash" },
     amount: { type: Number, },
   },

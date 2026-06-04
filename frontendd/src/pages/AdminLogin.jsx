@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, setAuthToken } from "../api/client";
+import { useAuth } from "../context/AuthContext";
 import { toast } from "react-hot-toast";
 
 export default function AdminLogin() {
   const nav = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
@@ -26,23 +28,20 @@ async function onSubmit(e) {
       throw new Error("Invalid response from server");
     }
 
-    // Save auth data
-    localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(user));
-
-    // Set axios auth header
+    // Set axios auth header immediately
     setAuthToken(token);
+
+    // Use auth context to login - this updates state and localStorage
+    login(token, user);
 
     toast.success("Logged in Successfully!");
 
-    // Wait for auth context update
-    setTimeout(() => {
-      if (user?.role?.toUpperCase() === "ADMIN") {
-        nav("/admin", { replace: true });
-      } else {
-        nav("/admin/brands", { replace: true });
-      }
-    }, 150);
+    // Redirect based on role - immediate redirect with no delay
+    if (user?.role?.toUpperCase() === "ADMIN") {
+      nav("/admin", { replace: true });
+    } else {
+      nav("/admin/brands", { replace: true });
+    }
 
   } catch (err) {
     console.log("Login Error:", err);

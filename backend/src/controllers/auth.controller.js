@@ -6,6 +6,8 @@ const LoginSchema = z.object({
   password: z.string().min(3),
 });
 
+
+
 async function loginController(req, res) {
   const parsed = LoginSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ message: "Invalid input", errors: parsed.error.errors });

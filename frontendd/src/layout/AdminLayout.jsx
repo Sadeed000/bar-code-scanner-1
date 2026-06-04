@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { setAuthToken } from "../api/client";
+import { useAuth } from "../context/AuthContext";
 import {
   LayoutDashboard,
   Tags,
@@ -16,15 +17,15 @@ import {
 
 export default function AdminLayout() {
   const nav = useNavigate();
+  const { user: authUser, logout: contextLogout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const user = authUser || JSON.parse(localStorage.getItem("user") || "{}");
 
   function logout() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
     setAuthToken(null);
-    nav("/admin/login");
+    contextLogout();
+    nav("/admin/login", { replace: true });
   }
 
   return (
@@ -59,27 +60,28 @@ export default function AdminLayout() {
 </div>
 <nav className="space-y-2">
 
-  {/* Only ADMIN */}
-  {user?.role === "ADMIN" && (
-    <>
-      <NavLink
-        to="/admin"
-        end
-        className={({ isActive }) =>
-          `block w-full text-left px-4 py-3 rounded-lg transition ${
-            isActive
-              ? "bg-gray-700 text-white"
-              : "text-gray-300 hover:bg-gray-700"
-          }`
-        }
-      >
-        <div className="flex items-center gap-2">
-          <LayoutDashboard className="w-4 h-4" />
-          <span>Dashboard</span>
-        </div>
-      </NavLink>
+{/* Dashboard → ONLY ADMIN */}
+{user?.role === "ADMIN" && (
+  <NavLink
+    to="/admin"
+    end
+    className={({ isActive }) =>
+      `block w-full text-left px-4 py-3 rounded-lg transition ${
+        isActive
+          ? "bg-gray-700 text-white"
+          : "text-gray-300 hover:bg-gray-700"
+      }`
+    }
+  >
+    <div className="flex items-center gap-2">
+      <LayoutDashboard className="w-4 h-4" />
+      <span>Dashboard</span>
+    </div>
+  </NavLink>
+)}
 
-        {/* Visible for all roles */}
+{/* ✅ Brands → ADMIN + SELLER */}
+{(user?.role === "ADMIN" || user?.role === "SELLER") && (
   <NavLink
     to="/admin/brands"
     className={({ isActive }) =>
@@ -95,91 +97,94 @@ export default function AdminLayout() {
       <span>Brands</span>
     </div>
   </NavLink>
+)}
 
-       <NavLink
-        to="/admin/sellers"
-        className={({ isActive }) =>
-          `block w-full text-left px-4 py-3 rounded-lg transition ${
-            isActive
-              ? "bg-gray-700 text-white"
-              : "text-gray-300 hover:bg-gray-700"
-          }`
-        }
-      >
-        <div className="flex items-center gap-2">
-          <Users className="w-4 h-4" />
-          <span>Seller Register</span>
-        </div>
-      </NavLink>
+{/* Remaining → ONLY ADMIN */}
+{user?.role === "ADMIN" && (
+  <>
+    <NavLink
+      to="/admin/sellers"
+      className={({ isActive }) =>
+        `block w-full text-left px-4 py-3 rounded-lg transition ${
+          isActive
+            ? "bg-gray-700 text-white"
+            : "text-gray-300 hover:bg-gray-700"
+        }`
+      }
+    >
+      <div className="flex items-center gap-2">
+        <Users className="w-4 h-4" />
+        <span>Seller Register</span>
+      </div>
+    </NavLink>
 
-      <NavLink
-        to="/admin/analytics"
-        className={({ isActive }) =>
-          `block w-full text-left px-4 py-3 rounded-lg transition ${
-            isActive
-              ? "bg-gray-700 text-white"
-              : "text-gray-300 hover:bg-gray-700"
-          }`
-        }
-      >
-        <div className="flex items-center gap-2">
-          <BarChart2 className="w-4 h-4" />
-          <span>Analytics</span>
-        </div>
-      </NavLink>
+    <NavLink
+      to="/admin/analytics"
+      className={({ isActive }) =>
+        `block w-full text-left px-4 py-3 rounded-lg transition ${
+          isActive
+            ? "bg-gray-700 text-white"
+            : "text-gray-300 hover:bg-gray-700"
+        }`
+      }
+    >
+      <div className="flex items-center gap-2">
+        <BarChart2 className="w-4 h-4" />
+        <span>Analytics</span>
+      </div>
+    </NavLink>
 
-      <NavLink
-        to="/admin/payments"
-        className={({ isActive }) =>
-          `block w-full text-left px-4 py-3 rounded-lg transition ${
-            isActive
-              ? "bg-gray-700 text-white"
-              : "text-gray-300 hover:bg-gray-700"
-          }`
-        }
-      >
-        <div className="flex items-center gap-2">
-          <CreditCard className="w-4 h-4" />
-          <span>Payments</span>
-        </div>
-      </NavLink>
-        <NavLink
-  to="/admin/reviews"
-  className={({ isActive }) =>
-    `block w-full text-left px-4 py-3 rounded-lg transition ${
-      isActive
-        ? "bg-gray-700 text-white"
-        : "text-gray-300 hover:bg-gray-700"
-    }`
-  }
->
-  <div className="flex items-center gap-2">
-    <Star className="w-4 h-4" />
-    <span>AI Reviews</span>
-  </div>
-</NavLink>
+    <NavLink
+      to="/admin/payments"
+      className={({ isActive }) =>
+        `block w-full text-left px-4 py-3 rounded-lg transition ${
+          isActive
+            ? "bg-gray-700 text-white"
+            : "text-gray-300 hover:bg-gray-700"
+        }`
+      }
+    >
+      <div className="flex items-center gap-2">
+        <CreditCard className="w-4 h-4" />
+        <span>Payments</span>
+      </div>
+    </NavLink>
+
+    <NavLink
+      to="/admin/reviews"
+      className={({ isActive }) =>
+        `block w-full text-left px-4 py-3 rounded-lg transition ${
+          isActive
+            ? "bg-gray-700 text-white"
+            : "text-gray-300 hover:bg-gray-700"
+        }`
+      }
+    >
+      <div className="flex items-center gap-2">
+        <Star className="w-4 h-4" />
+        <span>AI Reviews</span>
+      </div>
+    </NavLink>
+
+    <NavLink
+      to="/admin/contact-inbox"
+      className={({ isActive }) =>
+        `block w-full text-left px-4 py-3 rounded-lg transition ${
+          isActive
+            ? "bg-gray-700 text-white"
+            : "text-gray-300 hover:bg-gray-700"
+        }`
+      }
+    >
+      <div className="flex items-center gap-2">
+        <Inbox className="w-4 h-4" />
+        <span>Contact Inbox</span>
+      </div>
+    </NavLink>
+  </>
+)}
 
 
-
-      <NavLink
-        to="/admin/contact-inbox"
-        className={({ isActive }) =>
-          `block w-full text-left px-4 py-3 rounded-lg transition ${
-            isActive
-              ? "bg-gray-700 text-white"
-              : "text-gray-300 hover:bg-gray-700"
-          }`
-        }
-      >
-        <div className="flex items-center gap-2">
-          <Inbox className="w-4 h-4" />
-          <span>Contact Inbox</span>
-        </div>
-      </NavLink>
-
-     
-    </>
-  )}
 
 
   <NavLink

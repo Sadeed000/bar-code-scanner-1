@@ -10,7 +10,7 @@ const {
 
 // All seller routes require auth
 router.get("/", requireAuth, listSellersController);
-router.post("/", requireAuth, createSellerController);
+router.post("/", createSellerController);
 router.get("/:id", requireAuth, getSellerController);
 router.put("/:id", requireAuth, updateSellerController);
 router.delete("/:id", requireAuth, deleteSellerController);
