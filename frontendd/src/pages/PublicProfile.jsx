@@ -470,6 +470,13 @@ export default function PublicProfile() {
 
         const predefinedIcon = ICONS[keyNoSpaces] || ICONS[keyUnderscore] || ICONS[keyAlnum] || ICONS[rawKey] || null;
 
+        const formattedLabel = l.label
+          ? String(l.label)
+              .replace(/[_-]+/g, " ")
+              .replace(/\s+/g, " ")
+              .trim()
+          : "";
+
         let iconData;
 
         if (l.icon) {
@@ -493,7 +500,7 @@ export default function PublicProfile() {
           <IconTile
             key={index}
             icon={iconData}
-            label={l.label}
+            label={formattedLabel}
             onClick={() => {
               if (l.url) {
                 window.open(l.url, "_blank");

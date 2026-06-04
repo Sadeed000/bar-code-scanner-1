@@ -76,6 +76,13 @@
 
 
 export default function IconTile({ icon, label, onClick }) {
+  const formattedLabel = label
+    ? String(label)
+        .replace(/[_-]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+    : "";
+
   return (
     <button
       onClick={onClick}
@@ -84,15 +91,15 @@ export default function IconTile({ icon, label, onClick }) {
       <div className="w-15 h-15 flex items-center justify-center rounded-[16px] overflow-hidden transition-all duration-200 group-hover:scale-110">
         <img
           src={icon.img}
-          alt={label}
+          alt={formattedLabel}
           loading="lazy"
           decoding="async"
           className="w-full h-full object-cover rounded-[16px]"
         />
       </div>
 
-      <span className="text-xs text-gray-700 text-center">
-        {label}
+      <span className="text-[11px] leading-tight text-gray-700 text-center break-words whitespace-normal margin-0">
+        {formattedLabel}
       </span>
     </button>
   );
