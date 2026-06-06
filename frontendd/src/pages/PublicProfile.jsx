@@ -35,8 +35,8 @@ import youtube from "../assets/icons/youtube.png";
 import zomoto from "../assets/icons/zomoto.png";
 import menu from "../assets/icons/menu.png";
 import google from "../assets/icons/google.png";
-import jewellery_catalogue from '../assets/icons/jewellery_catalogue.jpeg'
-import jewellery_group from '../assets/icons/jewellery_group.jpeg'
+import jewellery_catalogue from '../assets/icons/jewellery_catalogue.png'
+import jewellery_group from '../assets/icons/jewellery_group.png'
 
 const ICONS = {
 
