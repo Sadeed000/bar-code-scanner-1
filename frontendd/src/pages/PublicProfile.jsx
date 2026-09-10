@@ -31,7 +31,7 @@ import makemytrip from "../assets/icons/mytrip.png";
 import net from "../assets/icons/net.png";
 import oyo from "../assets/icons/oyo.png";
 import petpooja from "../assets/icons/petpooja.png";
-import call from "../assets/icons/call_us.png";
+import call from "../assets/icons/Call_us.png";
 import swiggy from "../assets/icons/swiggy.png";
 import tripadvisor from "../assets/icons/tripadvisor.png";
 import wp from "../assets/icons/wp.png";
