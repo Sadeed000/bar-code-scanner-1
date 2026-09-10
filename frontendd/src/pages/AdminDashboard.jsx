@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { api, setAuthToken } from "../api/client";
 import { toast } from "react-hot-toast";
 import BrandForm from "../component/BrandForm";
-        import { Tag, Users, Smartphone, CheckCircle } from "lucide-react";
+import { Tag, Users, Smartphone, CheckCircle } from "lucide-react";
 import { IndianRupee } from "lucide-react";
+
+const API_BASE_URL = api.defaults.baseURL.replace("/api", "");
 
 export default function AdminDashboard() {
   const nav = useNavigate();
@@ -48,7 +50,7 @@ const [showScanner, setShowScanner] = useState(false);  // ← Add this line
   });
 
   const closeModel = () => setShowModal(false);
-  const brandLogo = import.meta.env.VITE_APP_BRAND_LOGO_URL ;
+  const brandLogo = API_BASE_URL;
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -86,6 +88,8 @@ const [showScanner, setShowScanner] = useState(false);  // ← Add this line
           if (form.logoFile) formData.append("logo", form.logoFile);
         } else if (key === "watermarkFile") {
           if (form.watermarkFile) formData.append("watermark", form.watermarkFile);
+        } else if (key === "backgroundFile") {
+          if (form.backgroundFile) formData.append("background", form.backgroundFile);
         } else if (key !== "logoUrl" && key !== "watermarkUrl" && key !== "gallery" && key !== "logoFile" && key !== "watermarkFile") {
           formData.append(key, typeof form[key] === "string" ? form[key] : JSON.stringify(form[key]));
         }
@@ -98,7 +102,7 @@ const [showScanner, setShowScanner] = useState(false);  // ← Add this line
       nav(`/admin/brands/${res.data._id}`);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to create brand");
+      toast.error(err.response?.data?.message || "Failed to create brand");
     }
   }
 

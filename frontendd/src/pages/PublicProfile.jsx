@@ -1,13 +1,17 @@
+import { iconUrl } from "../component/DynamicLinksEditor";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import PhoneFrame from "../component/PhoneFrame";
 import IconTile from "../component/IconTile";
 import ContactDialog from "../component/ContactDialog";
+import DecorativeBackground from "../component/DecorativeBackground";
+import useTemplateColors from "../component/useTemplateColors";
 import { api } from "../api/client";
 import { Info, Phone, Shield, FileText, Menu, Hamburger } from "lucide-react";
 import { ArrowLeft, Gem, Star, Copy, ExternalLink } from "lucide-react";
 import toast from "react-hot-toast";
 
+const API_BASE_URL = api.defaults.baseURL.replace("/api", "");
 
 import agoda from "../assets/icons/agoda.png";
 import airbnb from "../assets/icons/airbnb.png";
@@ -37,6 +41,8 @@ import menu from "../assets/icons/menu.png";
 import google from "../assets/icons/google.png";
 import jewellery_catalogue from '../assets/icons/jewellery_catalogue.png'
 import jewellery_group from '../assets/icons/jewellery_group.png'
+
+
 
 const ICONS = {
 
@@ -187,6 +193,14 @@ const ICONS = {
 export default function PublicProfile() {
   const { slug } = useParams();
   const [data, setData] = useState(null);
+  const backgroundPath = data?.backgroundUrl;
+  const backgroundSource = backgroundPath
+    ? (/^https?:\/\//i.test(backgroundPath) ? backgroundPath : API_BASE_URL + backgroundPath)
+    : "";
+  const backgroundTemplateUrl = backgroundSource && data?.updatedAt
+    ? `${backgroundSource}${backgroundSource.includes("?") ? "&" : "?"}v=${encodeURIComponent(data.updatedAt)}`
+    : backgroundSource;
+  const templateColors = useTemplateColors(backgroundTemplateUrl);
   const [loading, setLoading] = useState(true);
   const [showSplash, setShowSplash] = useState(true);
   const [showReviews, setShowReviews] = useState(false);
@@ -290,8 +304,8 @@ export default function PublicProfile() {
   }, [slug]);
 
   const enabledLinks = useMemo(() => {
-    if (!data?.links) return [];
-    return data.links.filter((l) => l.enabled !== false);
+    return [...(data?.links || []), ...(data?.categoryLinks || [])]
+      .filter((l) => l.enabled !== false);
   }, [data]);
 
   if (loading || showSplash) {
@@ -304,7 +318,7 @@ export default function PublicProfile() {
 
             {data?.logoUrl ? (
               <img
-                src={import.meta.env.VITE_APP_BRAND_LOGO_URL + data.logoUrl}
+                src={API_BASE_URL +data.logoUrl}
                 alt="logo"
                 className="w-full h-full object-cover"
               />
@@ -348,17 +362,28 @@ export default function PublicProfile() {
     );
   }
 
-  const accent = data?.theme?.accentColor || "#B08D57";
+  const accent = data?.theme?.accentColor || data?.theme?.headingColor || "#B08D57";
+  const cardBg = templateColors.background;
+  const translucentCardBg = cardBg.startsWith("rgb(")
+    ? cardBg.replace("rgb(", "rgba(").replace(")", ", 0.88)")
+    : "rgba(255, 255, 255, 0.88)";
+  const cardBorder = templateColors.border;
+  const cardBgHover = templateColors.hover;
 
 
 
   return (
     <PhoneFrame>
-      <div className="min-h-screen bg-white relative overflow-hidden">
+      <div className="min-h-screen bg-white relative overflow-hidden isolate">
+        {/* Decorative background template */}
+        <DecorativeBackground
+          backgroundUrl={backgroundTemplateUrl}
+        />
+
         {data?.watermarkUrl && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
             <img
-              src={import.meta.env.VITE_APP_BRAND_LOGO_URL + data.watermarkUrl}
+              src={API_BASE_URL +data.watermarkUrl}
               alt="watermark"
               className="w-[280px] md:w-[300px] opacity-[0.04] object-contain"
             />
@@ -367,50 +392,57 @@ export default function PublicProfile() {
         {/* MENU BUTTON */}
         <button
           onClick={openMenu}
-          className="absolute right-4 top-4 text-xl cursor-pointer z-10 text-gray-700 bg-gray-100 p-2 rounded-lg hover:bg-gray-200 transition-colors duration-200"
+          style={{
+            "--menu-bg": cardBg,
+            "--menu-bg-hover": cardBgHover,
+            color: "#374151",
+            borderColor: cardBorder,
+          }}
+          className="absolute right-4 top-4 text-xl cursor-pointer z-10 border bg-[var(--menu-bg)] hover:bg-[var(--menu-bg-hover)] p-2 rounded-lg transition-colors duration-200"
         >
           <Menu />
         </button>
 
         {/* HEADER */}
-        <div className="pt-10 px-5">
+        <div className="pt-12 px-5">
           <div className="flex flex-col items-center text-center">
 
-            <div className="w-28 h-27 flex items-center justify-center overflow-hidden">
+            <div className="max-w-full flex items-center justify-center overflow-hidden" style={{ width: data?.theme?.logoSize ?? 112, height: data?.theme?.logoSize ?? 112 }}>
               {data.logoUrl ? (
                 <img
-                  src={import.meta.env.VITE_APP_BRAND_LOGO_URL + data.logoUrl}
+                  src={API_BASE_URL +data.logoUrl}
                   alt={data.name}
-                  className="w-full h-full object-cover rounded-2xl"
+                  className="w-full h-full object-contain rounded-2xl"
                 />
               ) : (
                 <div
                   className="text-xl font-semibold"
-                  style={{ color: accent }}
+                  style={{ color: "#374151" }}
                 >
                   ☕
                 </div>
               )}
             </div>
 
-            <div className="text-3xl font-extrabold text-gray-900">
+            <div className="max-w-full break-words  font-extrabold text-gray-900" style={{ fontSize: data?.theme?.headingSize ?? 30, fontFamily: data?.theme?.fontFamily || undefined, lineHeight: 1.15 }}>
               {data.headline}{" "}
               <span style={{ color: accent }}>
                 {data.name}
               </span>
             </div>
 
-            <div className="mt-1 text-sm text-gray-500 max-w-[320px]">
+            <div className="mt-1 max-w-[320px] break-words" style={{ fontSize: data?.theme?.taglineSize ?? 14, color: data?.theme?.taglineColor || "#6b7280", fontFamily: data?.theme?.fontFamily || undefined }}>
               {data.tagline}
             </div>
 
           </div>
         </div>
         {/* GOOGLE REVIEW CARD */}
-        <div className="px-4 mt-4">
+        <div className="mx-auto w-[88%] max-w-[360px] mt-4">
           <button
             onClick={() => openReviewModal(data?.googleReviewUrl)}
-            className="w-full bg-white border border-gray-200 rounded-2xl px-5 py-4 shadow-sm flex items-center justify-between hover:shadow-md transition"
+            style={{ backgroundColor: translucentCardBg, borderColor: cardBorder }}
+            className="w-full border rounded-2xl px-5 py-4 shadow-sm flex items-center justify-between hover:shadow-md transition"
           >
             <div className="flex items-center gap-4">
 
@@ -445,14 +477,24 @@ export default function PublicProfile() {
 
 
 {/* CONNECT LINKS */}
-<div className="px-4 pb-10">
+<div className="mx-auto w-[88%] max-w-[360px] pb-10">
 
-  <div className="mt-5 bg-white border border-gray-200 rounded-2xl p-4 shadow-lg">
+  <div
+    style={{ backgroundColor: translucentCardBg, borderColor: cardBorder }}
+    className="mt-5 border rounded-2xl p-3 shadow-lg"
+  >
     <div className="text-sm font-semibold text-center">
       Connect With Us
     </div>
 
-    <div className="mt-4 grid grid-cols-4 gap-2">
+    <div
+      className="mt-3 grid grid-cols-4 gap-x-1 gap-y-3"
+      style={{
+        "--link-tile-bg": cardBg,
+        "--link-tile-border": cardBorder,
+        "--link-tile-shadow": cardBorder,
+      }}
+    >
 
       {enabledLinks.map((l, index) => {
 
@@ -461,12 +503,6 @@ export default function PublicProfile() {
         const keyNoSpaces = rawKey.replace(/[\s-]+/g, "");
         const keyUnderscore = rawKey.replace(/[\s-]+/g, "_");
         const keyAlnum = rawKey.replace(/[^\w]+/g, "");
-
-        // Skip special platforms that we handle separately
-        const specialPlatforms = ["booking", "makemytrip", "airbnb"];
-        if (specialPlatforms.includes(rawKey)) {
-          return null;
-        }
 
         const predefinedIcon = ICONS[keyNoSpaces] || ICONS[keyUnderscore] || ICONS[keyAlnum] || ICONS[rawKey] || null;
 
@@ -482,7 +518,7 @@ export default function PublicProfile() {
         if (l.icon) {
           // Backend icon → show inside colored tile
           iconData = {
-            img: l.icon,
+            img: iconUrl(l.icon),
             bg: "transparent",
           };
         } else if (predefinedIcon) {
@@ -503,7 +539,7 @@ export default function PublicProfile() {
             label={formattedLabel}
             onClick={() => {
               if (l.url) {
-                window.open(l.url, "_blank");
+                if (/^(https?:\/\/|tel:|mailto:)/i.test(l.url)) window.open(l.url, "_blank", "noopener,noreferrer");
               }
             }}
           />
@@ -520,52 +556,6 @@ export default function PublicProfile() {
           onClick={() => setShowGallery(true)}
         />
       )} */}
-
-{console.log(enabledLinks)}
-      {enabledLinks.some(l => l.label?.toLowerCase() === "booking") && (
-        <IconTile
-          icon={ICONS.booking}
-          label="booking"
-          onClick={() => {
-            const bookingLink = enabledLinks.find(l => l.label?.toLowerCase() === "booking" && l.url);
-            if (bookingLink?.url) {
-              window.open(bookingLink.url, "_blank");
-            } else {
-              toast.error("Booking URL not configured");
-            }
-          }}
-        />
-      )}
-
-      {enabledLinks.some(l => l.label?.toLowerCase() === "makemytrip") && (
-        <IconTile
-          icon={ICONS.makemytrip}
-          label="MakeMyTrip"
-          onClick={() => {
-            const tripLink = enabledLinks.find(l => l.label?.toLowerCase() === "makemytrip" && l.url);
-            if (tripLink?.url) {
-              window.open(tripLink.url, "_blank");
-            } else {
-              toast.error("MakeMyTrip URL not configured");
-            }
-          }}
-        />
-      )}
-
-      {enabledLinks.some(l => l.label?.toLowerCase() === "airbnb") && (
-        <IconTile
-          icon={ICONS.airbnb}
-          label="Airbnb"
-          onClick={() => {
-            const airbnbLink = enabledLinks.find(l => l.label?.toLowerCase() === "airbnb" && l.url);
-            if (airbnbLink?.url) {
-              window.open(airbnbLink.url, "_blank");
-            } else {
-              toast.error("Airbnb URL not configured");
-            }
-          }}
-        />
-      )}
 
       {(data?.ownerPhone || data?.contactNumber) && (
         <IconTile
@@ -866,7 +856,7 @@ export default function PublicProfile() {
             {/* MAIN IMAGE */}
             <div className="flex items-center justify-center mb-5">
               <img
-                src={import.meta.env.VITE_APP_BRAND_LOGO_URL + data.gallery[currentImage]}
+                src={API_BASE_URL +data.gallery[currentImage]}
                 alt="gallery"
                 className="max-h-[420px] object-contain rounded-xl"
               />
@@ -878,7 +868,7 @@ export default function PublicProfile() {
               {data.gallery.map((img, index) => (
                 <img
                   key={index}
-                  src={import.meta.env.VITE_APP_BRAND_LOGO_URL + img}
+                  src={API_BASE_URL +img}
                   alt="thumb"
                   onClick={() => setCurrentImage(index)}
                   className={`w-20 h-20 object-cover rounded-lg cursor-pointer border transition 

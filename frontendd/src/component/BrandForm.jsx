@@ -1,6 +1,33 @@
+import LogoUpload from "./LogoUpload";
+import DynamicLinksEditor from "./DynamicLinksEditor";
 import { useState, useEffect, useRef } from "react";
 import { api } from "../api/client";
 import toast from "react-hot-toast";
+
+const API_BASE_URL = api.defaults.baseURL.replace("/api", "");
+
+// Web-safe stacks only — no webfont request, so a slow or blocked CDN can never
+// leave a brand page without its font.
+const FONT_OPTIONS = [
+  { label: "Default (System)", value: "" },
+  { label: "Georgia (Elegant Serif)", value: "Georgia, 'Times New Roman', serif" },
+  { label: "Palatino (Luxury Serif)", value: "'Palatino Linotype', 'Book Antiqua', Palatino, serif" },
+  { label: "Garamond (Classic Serif)", value: "Garamond, Georgia, serif" },
+  { label: "Times New Roman", value: "'Times New Roman', Times, serif" },
+  { label: "Helvetica / Arial", value: "Helvetica, Arial, sans-serif" },
+  { label: "Trebuchet MS", value: "'Trebuchet MS', Helvetica, sans-serif" },
+  { label: "Verdana", value: "Verdana, Geneva, sans-serif" },
+  { label: "Courier New (Mono)", value: "'Courier New', Courier, monospace" },
+];
+
+const THEME_DEFAULTS = {
+  logoSize: 112,
+  fontFamily: "",
+  headingSize: 30,
+  headingColor: "#111827",
+  taglineSize: 14,
+  taglineColor: "#6b7280",
+};
 
 export default function BrandForm({ form, setForm }) {
 
@@ -10,26 +37,18 @@ export default function BrandForm({ form, setForm }) {
 
   const dropdownRef = useRef(null);
 
-  function updateLink(index, field, value) {
-    const updated = [...form.links];
-    updated[index][field] = value;
-    setForm({ ...form, links: updated });
-  }
-
-  function addLink() {
+  // Must merge, not replace — replacing the theme object drops every other
+  // appearance setting the admin already chose.
+  function updateTheme(field, value) {
     setForm({
       ...form,
-      links: [
-        ...(form?.links || []),
-        { label: "", url: "", icon: "", bg: "", enabled: true },
-      ],
+      theme: { ...(form?.theme || {}), [field]: value, ...(field === "headingColor" ? { accentColor: value } : {}) },
     });
   }
 
-  function removeLink(index) {
-    const updated = [...form.links];
-    updated.splice(index, 1);
-    setForm({ ...form, links: updated });
+  function themeValue(field) {
+    if (field === "headingColor") return form?.theme?.accentColor || form?.theme?.headingColor || THEME_DEFAULTS.headingColor;
+    return form?.theme?.[field] ?? THEME_DEFAULTS[field];
   }
 
   function updateReview(index, field, value) {
@@ -64,8 +83,10 @@ export default function BrandForm({ form, setForm }) {
       });
       toast.success("Category created");
       fetchCategories();
+      return true;
     } catch (err) {
-      toast.error("Category already exists");
+      toast.error("Could not create category");
+      return false;
     }
   }
 
@@ -111,6 +132,60 @@ export default function BrandForm({ form, setForm }) {
               }
               className={inputClass}
             />
+            <div className="mt-4 space-y-4">
+              {/* FONT FAMILY */}
+              <div>
+                <label className={labelClass}>Font Style</label>
+                <select
+                  value={themeValue("fontFamily")}
+                  onChange={(e) => updateTheme("fontFamily", e.target.value)}
+                  className={inputClass}
+                  style={{ fontFamily: themeValue("fontFamily") || undefined }}
+                >
+                  {FONT_OPTIONS.map((f) => (
+                    <option key={f.label} value={f.value} style={{ fontFamily: f.value || undefined }}>
+                      {f.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* HEADING */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className={labelClass}>
+                    Brand Name Size — {themeValue("headingSize")}px
+                  </label>
+                  <input
+                    type="range"
+                    min="12"
+                    max="72"
+                    value={themeValue("headingSize")}
+                    onChange={(e) => updateTheme("headingSize", Number(e.target.value))}
+                    className="w-full accent-blue-500 cursor-pointer"
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Brand Name Color</label>
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="color"
+                      value={themeValue("headingColor")}
+                      onChange={(e) => updateTheme("headingColor", e.target.value)}
+                      className="h-10 w-16 border border-gray-600 rounded-lg cursor-pointer bg-gray-700"
+                    />
+                    <input
+                      type="text"
+                      value={themeValue("headingColor")}
+                      onChange={(e) => updateTheme("headingColor", e.target.value)}
+                      className={inputClass}
+                      placeholder="#111827"
+                    />
+                  </div>
+                </div>
+              </div>
+
+            </div>
           </div>
 
           <div>
@@ -135,6 +210,43 @@ export default function BrandForm({ form, setForm }) {
               }
               className={inputClass}
             />
+            <div className="mt-4 space-y-4">
+              {/* TAGLINE */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className={labelClass}>
+                    Tagline Size — {themeValue("taglineSize")}px
+                  </label>
+                  <input
+                    type="range"
+                    min="8"
+                    max="36"
+                    value={themeValue("taglineSize")}
+                    onChange={(e) => updateTheme("taglineSize", Number(e.target.value))}
+                    className="w-full accent-blue-500 cursor-pointer"
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Tagline Color</label>
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="color"
+                      value={themeValue("taglineColor")}
+                      onChange={(e) => updateTheme("taglineColor", e.target.value)}
+                      className="h-10 w-16 border border-gray-600 rounded-lg cursor-pointer bg-gray-700"
+                    />
+                    <input
+                      type="text"
+                      value={themeValue("taglineColor")}
+                      onChange={(e) => updateTheme("taglineColor", e.target.value)}
+                      className={inputClass}
+                      placeholder="#6b7280"
+                    />
+                  </div>
+                </div>
+              </div>
+
+            </div>
           </div>
 
 {/* 
@@ -174,6 +286,15 @@ export default function BrandForm({ form, setForm }) {
           className="w-full px-4 py-2 bg-gray-700 text-white border-b border-gray-600 outline-none"
         />
 
+        {categorySearch.trim() && !categories.some(c => c.toLowerCase() === categorySearch.trim().toLowerCase()) && (
+          <button type="button" className="px-4 py-2 text-blue-300" onClick={async () => {
+            const name = categorySearch.trim();
+            if (!await createCategory(name)) return;
+            setForm(current => ({ ...current, category: name }));
+            setShowCategoryDropdown(false);
+            setCategorySearch("");
+          }}>+ Create "{categorySearch.trim()}"</button>
+        )}
         {categories
           .filter(c => c.toLowerCase().includes(categorySearch.toLowerCase()))
           .map((c, i) => (
@@ -217,56 +338,7 @@ export default function BrandForm({ form, setForm }) {
               className={inputClass}
             />
           </div>
-{/* LOGO UPLOAD */}
-<div className="sm:col-span-2 lg:col-span-2">
-  <label className={labelClass}>Logo Upload</label>
-
-  <div className="flex flex-wrap gap-2">
-    <label className="bg-blue-600 hover:bg-blue-700 text-white px-3 md:px-4 py-2 rounded-lg cursor-pointer text-xs md:text-sm whitespace-nowrap font-medium transition">
-      Choose File
-      <input
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={(e) => {
-          const file = e.target.files[0];
-          if (!file) return;
-
-          setForm({
-            ...form,
-            logoFile: file,
-          });
-        }}
-      />
-    </label>
-
-    {form?.logoFile && (
-      <span className="text-xs md:text-sm text-gray-300 flex items-center">
-        ✓ {form.logoFile.name}
-      </span>
-    )}
-  </div>
-
-{/* LOGO PREVIEW */}
-{(form?.logoFile || form?.logoUrl) && (
-  <div>
-    <p className="text-xs text-gray-400 mt-2">
-      {form?.logoFile ? "Preview:" : "Current logo:"}
-    </p>
-{console.log(import.meta.env.VITE_APP_BRAND_LOGO_URL+form.logoUrl)}
-    <img
-      src={
-        form?.logoFile
-          ? URL.createObjectURL(form.logoFile)
-          : `${import.meta.env.VITE_APP_BRAND_LOGO_URL}${form.logoUrl}`
-      }
-      alt="logo preview"
-      className="h-20 w-full max-w-[220px] mt-2 object-contain border border-gray-600 rounded-lg p-2 bg-gray-800"
-    />
-  </div>
-)}
-</div>
-
+<LogoUpload form={form} setForm={setForm} baseUrl={API_BASE_URL} />
 
 {/* WATERMARK UPLOAD */}
 <div className="sm:col-span-2 lg:col-span-2">
@@ -309,7 +381,7 @@ export default function BrandForm({ form, setForm }) {
       src={
         form?.watermarkFile
           ? URL.createObjectURL(form.watermarkFile)
-          : `${import.meta.env.VITE_APP_BRAND_LOGO_URL}${form.watermarkUrl}`
+          : `${API_BASE_URL}${form.watermarkUrl}`
       }
       alt="watermark preview"
       className="h-20 w-full max-w-[220px] mt-2 object-contain border border-gray-600 rounded-lg p-2 bg-gray-800"
@@ -317,7 +389,74 @@ export default function BrandForm({ form, setForm }) {
   </div>
 )}
 </div>
-  
+
+
+{/* BACKGROUND TEMPLATE UPLOAD */}
+<div className="sm:col-span-2 lg:col-span-2">
+  <label className={labelClass}>Background Theme Template</label>
+  <p className="text-xs text-gray-500 mb-2">
+    Optional. Upload a full-page background image (portrait, e.g. 900×1600).
+    Leave empty to keep the plain background.
+  </p>
+
+  <div className="flex flex-wrap gap-2">
+    <label className="bg-blue-600 hover:bg-blue-700 text-white px-3 md:px-4 py-2 rounded-lg cursor-pointer text-xs md:text-sm whitespace-nowrap font-medium transition">
+      Choose File
+      <input
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+
+          setForm({
+            ...form,
+            backgroundFile: file,
+          });
+        }}
+      />
+    </label>
+
+    {form?.backgroundFile && (
+      <span className="text-xs md:text-sm text-gray-300 flex items-center">
+        ✓ {form.backgroundFile.name}
+      </span>
+    )}
+
+    {(form?.backgroundFile || form?.backgroundUrl) && (
+      <button
+        type="button"
+        onClick={() =>
+          setForm({ ...form, backgroundFile: null, backgroundUrl: "" })
+        }
+        className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-xs md:text-sm font-medium transition cursor-pointer"
+      >
+        Remove
+      </button>
+    )}
+  </div>
+
+  {/* BACKGROUND PREVIEW */}
+  {(form?.backgroundFile || form?.backgroundUrl) && (
+    <div>
+      <p className="text-xs text-gray-400 mt-2">
+        {form?.backgroundFile ? "Preview:" : "Current background:"}
+      </p>
+
+      <img
+        src={
+          form?.backgroundFile
+            ? URL.createObjectURL(form.backgroundFile)
+            : `${API_BASE_URL}${form.backgroundUrl}`
+        }
+        alt="background preview"
+        className="h-40 w-full max-w-[160px] mt-2 object-cover border border-gray-600 rounded-lg bg-gray-800"
+      />
+    </div>
+  )}
+</div>
+
         </div>
       </div>
 
@@ -373,7 +512,7 @@ export default function BrandForm({ form, setForm }) {
       {form.gallery.map((img, i) => (
         <img
           key={`existing-${i}`}
-          src={`${import.meta.env.VITE_APP_BRAND_LOGO_URL}${img}`}
+          src={`${API_BASE_URL}${img}`}
           alt="gallery"
           className="h-20 w-full object-cover border border-gray-600 rounded-lg"
         />
@@ -442,53 +581,7 @@ export default function BrandForm({ form, setForm }) {
         </div>
       </div> */}
 
-      {/* CUSTOM LINKS */}
-      <div>
-        <h3 className="text-base md:text-lg font-semibold text-white mb-4">Links</h3>
-        <div className="space-y-3">
-          {form?.links?.map((l, i) => (
-            <div key={i} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 items-end">
-              <input
-                placeholder="Label"
-                value={l.label}
-                onChange={(e) => updateLink(i, "label", e.target.value)}
-                className={inputClass}
-              />
-              <input
-                placeholder="URL"
-                value={l.url}
-                onChange={(e) => updateLink(i, "url", e.target.value)}
-                className={inputClass}
-              />
-              {/* <input
-                placeholder="Icon URL"
-                value={l.icon}
-                onChange={(e) => updateLink(i, "icon", e.target.value)}
-                className={inputClass}
-              /> */}
-              {/* <input
-                placeholder="BG Color"
-                value={l.bg}
-                onChange={(e) => updateLink(i, "bg", e.target.value)}
-                className={inputClass}
-              /> */}
-              <button
-                type="button"
-                onClick={() => removeLink(i)}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition cursor-pointer"
-              >
-                Remove
-              </button>
-            </div>
-          ))}
-          <button
-            onClick={addLink}
-            className="text-xs md:text-sm bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition cursor-pointer"
-          >
-            + Add Link
-          </button>
-        </div>
-      </div>
+      <DynamicLinksEditor form={form} setForm={setForm} />
 
       {/* BRAND INFORMATION */}
       <div className="border-t border-gray-700 pt-6">
@@ -581,25 +674,8 @@ export default function BrandForm({ form, setForm }) {
           </div>
 
 
-          <div>
-            <label className={labelClass}>Accent Color</label>
-            <div className="flex flex-wrap gap-2 items-center">
-              <input
-                type="color"
-                value={form?.theme?.accentColor || "#B08D57"}
-                onChange={(e) => setForm({ ...form, theme: { accentColor: e.target.value } })}
-                className="h-10 w-16 md:w-20 border border-gray-600 rounded-lg cursor-pointer bg-gray-700"
-              />
-              <input
-                type="text"
-                value={form?.theme?.accentColor || "#B08D57"}
-                onChange={(e) => setForm({ ...form, theme: { accentColor: e.target.value } })}
-                className={inputClass}
-                placeholder="#B08D57"
-              />
-            </div>
-          </div>
-
+          {/* APPEARANCE EDITOR */}
+ 
           <div>
             <label className={labelClass}>Privacy Policy</label>
             <textarea

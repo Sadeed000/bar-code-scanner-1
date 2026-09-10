@@ -17,8 +17,9 @@ const ReviewSchema = z.object({
 
 const LinkSchema = z.object({
   label: z.string().min(1),
-  url: z.string().url().or(z.literal("")).optional(),
+  url: z.string().refine(value => !value || /^(https?:\/\/|tel:|mailto:)/i.test(value), "Use an HTTP, HTTPS, telephone or email link").optional(),
   icon: z.string().optional(),
+  enabled: z.boolean().optional(),
   bgColor: z.string().optional(),
 });
 
@@ -43,6 +44,7 @@ const BrandSchema = z.object({
   privacyPolicy: z.string().optional(),
   termsConditions: z.string().optional(),
   links: z.array(LinkSchema).optional(),
+  categoryLinks: z.array(LinkSchema).optional(),
   reviews: z.array(ReviewSchema).optional(),
 category: z
   .string()
@@ -59,6 +61,7 @@ async function createBrandController(req, res) {
   try {
     // Parse JSON strings from FormData back to objects
     const body = { ...req.body };
+    if (typeof body.categoryLinks === "string") body.categoryLinks = JSON.parse(body.categoryLinks);
     if (body.links && typeof body.links === "string") {
       body.links = JSON.parse(body.links);
     }
@@ -118,6 +121,7 @@ async function updateBrandController(req, res) {
 
     // Parse JSON strings from FormData back to objects
     const body = { ...req.body };
+    if (typeof body.categoryLinks === "string") body.categoryLinks = JSON.parse(body.categoryLinks);
 
     if (body.links && typeof body.links === "string") {
       body.links = JSON.parse(body.links);

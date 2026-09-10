@@ -17,8 +17,9 @@ const ReviewSchema = z.object({
 
 const LinkSchema = z.object({
   label: z.string().min(1),
-  url: z.string().url().or(z.literal("")).optional(),
+  url: z.string().refine(value => !value || /^(https?:\/\/|tel:|mailto:)/i.test(value), "Use an HTTP, HTTPS, telephone or email link").optional(),
   icon: z.string().optional(),
+  enabled: z.boolean().optional(),
   bgColor: z.string().optional(),
 });
 
@@ -35,6 +36,7 @@ const BrandSchema = z.object({
   headlineAccent: z.string().optional(),
   subtext: z.string().optional(),
   logoUrl: z.string().optional(),
+  backgroundUrl: z.string().optional(),
   // ⭐ ADD THIS
   googleReviewUrl: z.string().url().or(z.literal("")).optional(),
   patPoojaUrl: z.string().url().or(z.literal("")).optional(),
@@ -43,6 +45,7 @@ const BrandSchema = z.object({
   privacyPolicy: z.string().optional(),
   termsConditions: z.string().optional(),
   links: z.array(LinkSchema).optional(),
+  categoryLinks: z.array(LinkSchema).optional(),
   reviews: z.array(ReviewSchema).optional(),
 category: z
   .string()
@@ -52,6 +55,12 @@ category: z
   gallery: z.array(z.string()).optional(),
   theme: z.object({
     accentColor: z.string().optional(),
+    logoSize: z.coerce.number().min(40).max(260).optional(),
+    fontFamily: z.string().optional(),
+    headingSize: z.coerce.number().min(12).max(72).optional(),
+    headingColor: z.string().optional(),
+    taglineSize: z.coerce.number().min(8).max(36).optional(),
+    taglineColor: z.string().optional(),
   }).optional(),
 });
 
@@ -59,6 +68,7 @@ async function createBrandController(req, res) {
   try {
     // Parse JSON strings from FormData back to objects
     const body = { ...req.body };
+    if (typeof body.categoryLinks === "string") body.categoryLinks = JSON.parse(body.categoryLinks);
     if (body.links && typeof body.links === "string") {
       body.links = JSON.parse(body.links);
     }
@@ -89,9 +99,12 @@ async function createBrandController(req, res) {
       if (req.files.watermark && req.files.watermark[0]) {
         payload.watermarkUrl = `/uploads/logos/${req.files.watermark[0].filename}`;
       }
+      if (req.files.background && req.files.background[0]) {
+        payload.backgroundUrl = `/uploads/logos/${req.files.background[0].filename}`;
+      }
     }
 
- // Handle gallery uploads    
+ // Handle gallery uploads
 if (req.files && req.files.gallery) {
   const brandFolder = payload.name.replace(/\s+/g, "-").toLowerCase();
 
@@ -118,6 +131,7 @@ async function updateBrandController(req, res) {
 
     // Parse JSON strings from FormData back to objects
     const body = { ...req.body };
+    if (typeof body.categoryLinks === "string") body.categoryLinks = JSON.parse(body.categoryLinks);
 
     if (body.links && typeof body.links === "string") {
       body.links = JSON.parse(body.links);
@@ -150,6 +164,10 @@ async function updateBrandController(req, res) {
 
       if (req.files.watermark && req.files.watermark[0]) {
         payload.watermarkUrl = `/uploads/logos/${req.files.watermark[0].filename}`;
+      }
+
+      if (req.files.background && req.files.background[0]) {
+        payload.backgroundUrl = `/uploads/logos/${req.files.background[0].filename}`;
       }
     }
 

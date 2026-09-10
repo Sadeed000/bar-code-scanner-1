@@ -67,6 +67,9 @@ Object.keys(form).forEach((key) => {
   } else if (key === "watermarkFile") {
     if (form.watermarkFile) formData.append("watermark", form.watermarkFile);
 
+  } else if (key === "backgroundFile") {
+    if (form.backgroundFile) formData.append("background", form.backgroundFile);
+
   } else if (key === "galleryFiles") {
     if (form.galleryFiles && form.galleryFiles.length > 0) {
       form.galleryFiles.forEach(file => formData.append("gallery", file));
@@ -97,7 +100,7 @@ if (form.gallery && form.gallery.length > 0) {
       nav("/admin/brands");
     } catch (err) {
       console.error(err);
-      toast.error("Failed to save brand");
+      toast.error(err.response?.data?.message || "Failed to save brand");
     } finally {
       setSaving(false);
     }

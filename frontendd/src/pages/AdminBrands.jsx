@@ -7,6 +7,9 @@ import ConfirmDialog from "../component/ConfirmDialog";
 import useDebounce from "../utils/useDebounce";
 import { QrCode, Download, X } from "lucide-react";
 import { Pencil, Trash2 } from "lucide-react";
+
+const API_BASE_URL = api.defaults.baseURL.replace("/api", "");
+
 export default function AdminBrands() {
   const nav = useNavigate();
   const [brands, setBrands] = useState([]);
@@ -20,7 +23,7 @@ export default function AdminBrands() {
   const [qrModal, setQrModal] = useState(false);
   const [selectedBrand, setSelectedBrand] = useState(null);
   const user = JSON.parse(localStorage.getItem("user") || "{}");
-  const brandLogo = import.meta.env.VITE_APP_BRAND_LOGO_URL;
+  const brandLogo = API_BASE_URL;
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(5);

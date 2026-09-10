@@ -55,8 +55,12 @@ const fs = require("fs");
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
 
-    // LOGO & WATERMARK
-    if (file.fieldname === "logo" || file.fieldname === "watermark") {
+    // LOGO & WATERMARK & BACKGROUND
+    if (
+      file.fieldname === "logo" ||
+      file.fieldname === "watermark" ||
+      file.fieldname === "background"
+    ) {
       return cb(null, "uploads/logos");
     }
 
@@ -104,7 +108,7 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB
+    fileSize: 10 * 1024 * 1024 // 10MB — full-page background templates are large
   }
 });
 

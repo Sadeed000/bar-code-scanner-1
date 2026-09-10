@@ -86,15 +86,23 @@ export default function IconTile({ icon, label, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="flex flex-col items-center gap-1 group transition cursor-pointer"
+      type="button"
+      className="flex min-w-0 flex-col items-center gap-1.5 group transition cursor-pointer rounded-xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current"
     >
-      <div className="w-15 h-15 flex items-center justify-center rounded-[16px] overflow-hidden transition-all duration-200 group-hover:scale-110">
+      <div
+        className="w-15 max-w-full aspect-square sm:w-15 shrink-0 border p-1 flex items-center justify-center rounded-[16px] overflow-hidden transition-transform duration-200 motion-safe:group-hover:scale-105"
+        style={{
+          backgroundColor: "var(--link-tile-bg, #fafafa)",
+          borderColor: "var(--link-tile-border, #e5e7eb)",
+          boxShadow: "0 3px 6px -3px var(--link-tile-shadow, #d1d5db), inset 0 1px 0 rgba(255, 255, 255, 0.8)",
+        }}
+      >
         <img
           src={icon.img}
           alt={formattedLabel}
           loading="lazy"
           decoding="async"
-          className="w-full h-full object-cover rounded-[16px]"
+          className="w-full h-full object-contain"
         />
       </div>
 

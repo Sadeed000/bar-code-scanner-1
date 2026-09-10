@@ -44,6 +44,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
@@ -101,6 +102,31 @@ app.use("/api/reviews", reviewRoutes);
   // React Router fallback (IMPORTANT FIX)
   app.get(/.*/, (req, res) => {
     res.sendFile(path.join(distPath, "index.html"));
+  });
+
+  // Upload errors are thrown by multer before any controller runs, so without
+  // this they surface as an opaque 500 with no message.
+  app.use((err, req, res, next) => {
+    if (err instanceof multer.MulterError) {
+      console.error("Upload error:", err.code, err.field);
+
+      if (err.code === "LIMIT_FILE_SIZE") {
+        return res.status(400).json({
+          message: `"${err.field}" is too large. Maximum size is 10MB.`,
+        });
+      }
+
+      if (err.code === "LIMIT_UNEXPECTED_FILE") {
+        return res.status(400).json({
+          message: `Unexpected upload field "${err.field}".`,
+        });
+      }
+
+      return res.status(400).json({ message: err.message });
+    }
+
+    console.error("Unhandled error:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
   });
 
   const port = process.env.PORT || 5000;

@@ -11,6 +11,32 @@ const {
 const { upload, } = require("../utils/upload");
 const { trackQRScan } = require("../controllers/qr.controller");
 
+// Authenticated image uploads for category and social tiles.
+const multer = require("multer");
+const fs = require("fs");
+const crypto = require("crypto");
+const iconUpload = multer({
+  storage: multer.diskStorage({
+    destination(req, file, cb) {
+      fs.mkdir("uploads/icons", { recursive: true }, error => cb(error, "uploads/icons"));
+    },
+    filename(req, file, cb) {
+      const extensions = { "image/png": ".png", "image/jpeg": ".jpg", "image/webp": ".webp", "image/gif": ".gif" };
+      cb(null, crypto.randomUUID() + extensions[file.mimetype]);
+    }
+  }),
+  limits: { fileSize: 5 * 1024 * 1024, files: 1 },
+  fileFilter(req, file, cb) {
+    cb(null, ["image/png", "image/jpeg", "image/webp", "image/gif"].includes(file.mimetype));
+  }
+}).single("icon");
+router.post("/icon", requireAuth, (req, res) => {
+  iconUpload(req, res, error => {
+    if (error || !req.file) return res.status(400).json({ message: "Choose a PNG, JPG, WebP or GIF image up to 5 MB" });
+    res.json({ url: "/uploads/icons/" + req.file.filename });
+  });
+});
+
 // public
 router.get("/public/:slug", getBrandPublicController);
 
@@ -23,6 +49,7 @@ router.post(
   upload.fields([
     { name: "logo", maxCount: 1 },
     { name: "watermark", maxCount: 1 },
+    { name: "background", maxCount: 1 },
       { name: "gallery", maxCount: 6 },
 
   ]),
@@ -34,6 +61,7 @@ router.put(
   upload.fields([
     { name: "logo", maxCount: 1 },
     { name: "watermark", maxCount: 1 },
+    { name: "background", maxCount: 1 },
       { name: "gallery", maxCount: 6 },
 
   ]),

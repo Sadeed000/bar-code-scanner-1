@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const LinkSchema = new mongoose.Schema(
   {
     label: String,
+    enabled: { type: Boolean, default: true },
     url: String,
     icon: String, // optional custom icon name
     bgColor: String, // optional custom color
@@ -57,10 +58,10 @@ const BrandProfileSchema = new mongoose.Schema(
   termsConditions: String,
   
     links: [LinkSchema],
+    categoryLinks: [LinkSchema],
     reviews: [ReviewSchema],
 category: {
   type: String,
-  enum: ["cafe", "restaurant", "gym", "shop", "hotel"],
   default: "cafe",
 },
     qrCodeUrl: String, // generated QR image
