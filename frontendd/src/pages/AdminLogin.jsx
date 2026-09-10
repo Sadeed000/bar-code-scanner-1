@@ -47,33 +47,84 @@ async function onSubmit(e) {
     console.log("Login Error:", err);
 
     setErr("Invalid login");
-    toast.error(err?.response?.data?.message || "Login failed");
+    toast.error(err?.response?.data?.message ||
+      (!err.response ? "Cannot reach the server. Check your connection and try again." : "Login failed"));
   }
 }
   return (
-    <div className="min-h-screen bg-[#0b1220] flex items-center justify-center p-4">
-      <form onSubmit={onSubmit} className="w-full max-w-md bg-white rounded-2xl p-6">
-        <div className="text-xl font-bold">Admin Login</div>
-        <div className="text-sm text-gray-500 mt-1">Manage QR profiles</div>
+    <div className="min-h-screen bg-gradient-to-br from-navy-950 via-navy-900 to-navy-950 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Decorative background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl"></div>
+      </div>
 
-        <div className="mt-5">
-          <label className="text-xs text-gray-600">Email</label>
-          <input className="w-full border rounded-xl px-3 py-2 mt-1"
-          placeholder="demo@gmail.com"  value={email} onChange={(e) => setEmail(e.target.value)} />
+      <div className="relative z-10 w-full max-w-md">
+        {/* Logo & Title */}
+        <div className="text-center mb-8">
+          <div className="text-4xl font-bold gradient-text mb-2">Sparrownix</div>
+          <p className="text-gray-400">Admin Dashboard</p>
         </div>
 
-        <div className="mt-3">
-          <label className="text-xs text-gray-600">Password</label>
-          <input type="password" className="w-full border rounded-xl px-3 py-2 mt-1"
-            placeholder="******"  value={password} onChange={(e) => setPassword(e.target.value)} />
+        {/* Login Card */}
+        <form onSubmit={onSubmit} className="card-elevated">
+          <h1 className="text-2xl font-bold text-white mb-1">Sign In</h1>
+          <p className="text-gray-400 text-sm mb-8">Enter your credentials to access the admin panel</p>
+
+          {/* Email Field */}
+          <div className="mb-6">
+            <label className="label label-required">Email Address</label>
+            <input
+              type="email"
+              className="input-field"
+              placeholder="admin@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          {/* Password Field */}
+          <div className="mb-6">
+            <label className="label label-required">Password</label>
+            <input
+              type="password"
+              className="input-field"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          {/* Error Message */}
+          {err && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+              <p className="text-red-400 text-sm font-medium">{err}</p>
+            </div>
+          )}
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className="btn btn-primary w-full py-3 font-semibold text-lg mb-4"
+          >
+            Sign In
+          </button>
+
+          {/* Footer */}
+          <div className="text-center text-gray-400 text-sm">
+            <p>Demo credentials available on request</p>
+          </div>
+        </form>
+
+        {/* Security Note */}
+        <div className="mt-6 p-4 bg-gray-800/50 border border-gray-700/50 rounded-xl">
+          <p className="text-gray-400 text-xs">
+            🔐 This is a secure admin panel. Never share your credentials with anyone.
+          </p>
         </div>
-
-        {err && <div className="text-sm text-red-600 mt-3">{err}</div>}
-
-        <button className="w-full mt-5 bg-black text-white rounded-xl py-2 font-semibold">
-          Login
-        </button>
-      </form>
+      </div>
     </div>
   );
 }

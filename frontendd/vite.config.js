@@ -5,6 +5,19 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
+  server: {
+    host: '0.0.0.0',
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:9797',
+        changeOrigin: true,
+      },
+      '/uploads': {
+        target: 'http://127.0.0.1:9797',
+        changeOrigin: true,
+      },
+    },
+  },
   plugins: [react(),
         tailwindcss(),
 

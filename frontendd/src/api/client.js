@@ -1,8 +1,8 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: "http://localhost:9797/api",
-  // baseURL: "https://mycard.sparrownix.com/api",
+  baseURL: import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ||
+    `${window.location.origin}/api`,
 });
 
 // Initialize auth token from localStorage on app load
