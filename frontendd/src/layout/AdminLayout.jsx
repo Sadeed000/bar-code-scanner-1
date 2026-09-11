@@ -91,16 +91,13 @@ export default function AdminLayout() {
         </div>
       </aside>
       <div className="min-w-0 flex-1">
-        <header ref={headerRef} className="sticky top-0 z-30 flex h-[76px] items-center justify-between gap-3 border-b border-slate-200 bg-white/95 px-4 backdrop-blur-md md:px-8">
+        <header ref={headerRef} className="sticky top-0 z-30 flex h-[50px] items-center justify-between gap-3 border-b border-slate-200 bg-white/95 px-4 backdrop-blur-md md:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <button ref={menuRef} onClick={() => setSidebarOpen(true)} aria-label="Open navigation" aria-controls="admin-navigation" aria-expanded={sidebarOpen} className="rounded-lg p-2 hover:bg-slate-100 lg:hidden"><Menu size={21} /></button>
             <span className="hidden text-slate-400 sm:inline">Workspace</span><ChevronRight size={14} className="hidden text-slate-300 sm:block" /><span className="truncate text-sm font-medium">{currentPage}</span>
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
-            {isAdmin && <div className="relative">
-              <button aria-label="Notifications" aria-expanded={popover === "notifications"} onClick={() => setPopover(popover === "notifications" ? null : "notifications")} className="rounded-lg p-2.5 text-slate-500 hover:bg-slate-100"><Bell size={20} /></button>
-              {popover === "notifications" && <div className="header-popover animate-fade-in"><div className="p-3"><p className="font-semibold text-slate-900">Notifications</p><p className="mt-1 text-xs text-slate-500">View customer contact activity in your inbox.</p></div><Link to="/admin/contact-inbox" onClick={closeMenus}><Inbox size={17} />Open contact inbox<ChevronRight size={15} className="ml-auto" /></Link></div>}
-            </div>}
+           
             <div className="relative border-l border-slate-200 pl-3 sm:pl-5">
               <button aria-label="Account options" aria-expanded={popover === "profile"} onClick={() => setPopover(popover === "profile" ? null : "profile")} className="flex items-center gap-3 rounded-lg p-1 text-left">
                 <span className="flex h-9 w-9 items-center justify-center rounded-full border border-blue-100 bg-blue-50 text-sm font-semibold text-blue-800">{user?.name?.charAt(0)?.toUpperCase() || "U"}</span>
