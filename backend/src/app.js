@@ -1,53 +1,10 @@
-require("dotenv").config();
+const path = require("path");
+require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 const { uploadRoot } = require("../config/uploads");
-// require("dotenv").config();
-// const express = require("express");
-// const cors = require("cors");
-// const { connectDB } = require("./config/db");
-// // const { ensureSeedAdmin } = require("./services/auth.service");
-
-// const authRoutes = require("./routes/auth.routes");
-// const brandRoutes = require("./routes/brand.routes");
-// const sellerRoutes = require("./routes/seller.routes");
-// const qrRoutes = require("./routes/qr.routes");
-
-// async function bootstrap() {
-//   await connectDB(process.env.MONGO_URI);
-
-//   // await ensureSeedAdmin({
-//   //   email: process.env.ADMIN_EMAIL,
-//   //   password: process.env.ADMIN_PASSWORD,
-//   // });
-
-//   const app = express();
-//   app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
-//   app.use(express.json({ limit: "1mb" }));
-  
-//   // Serve uploaded files as static assets
-//   app.use("/uploads", express.static(uploadRoot));
-
-//   app.get("/health", (req, res) => res.json({ ok: true }));
-
-//   app.use("/api/auth", authRoutes);
-//   app.use("/api/brands", brandRoutes);
-//   app.use("/api/sellers", sellerRoutes);
-//     app.use("/api/qr-code", qrRoutes);
-
-
-//   const port = process.env.PORT || 5000;
-//   app.listen(port, () => console.log(`✅ API running on http://localhost:${port}`));
-// }
-
-// bootstrap().catch((e) => {
-//   console.error(e);
-//   process.exit(1);
-// });
-
-require("dotenv").config();
+const { resolveFrontendDist } = require("../config/frontend");
 const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
-const path = require("path");
 const fs = require("fs");
 
 const { connectDB } = require("./config/db");
@@ -57,9 +14,7 @@ const brandRoutes = require("./routes/brand.routes");
 const sellerRoutes = require("./routes/seller.routes");
 const qrRoutes = require("./routes/qr.routes");
 const reviewRoutes = require("./routes/review.routes");
-async function bootstrap() {
-  await connectDB(process.env.MONGO_URI);
-
+function createApp() {
   const app = express();
 
 app.use(
@@ -77,7 +32,7 @@ app.use(
   // ===============================
   // 🔥 React Build Path
   // ===============================
-  const distPath = path.join(__dirname, "dist");
+  const distPath = resolveFrontendDist();
 
   console.log("Serving React build from:", distPath);
 
@@ -100,6 +55,7 @@ app.use("/api/reviews", reviewRoutes);
   // ===============================
   // Serve React Static
   // ===============================
+  app.use("/api", (req, res) => res.status(404).json({ message: "API route not found" }));
   app.use(express.static(distPath));
 
   // React Router fallback (IMPORTANT FIX)
@@ -132,14 +88,20 @@ app.use("/api/reviews", reviewRoutes);
     res.status(500).json({ message: "Server error", error: err.message });
   });
 
-  const port = process.env.PORT || 5000;
+  return app;
+}
 
-  app.listen(port, () =>
+async function bootstrap() {
+  await connectDB(process.env.MONGO_URI);
+  const app = createApp();
+  const port = process.env.PORT || 9797;
+  return app.listen(port, () =>
     console.log(`🚀 Server running on http://localhost:${port}`)
   );
 }
 
-bootstrap().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+if (require.main === module) {
+  bootstrap().catch((e) => { console.error(e); process.exit(1); });
+}
+
+module.exports = { createApp, bootstrap };

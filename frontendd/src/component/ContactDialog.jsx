@@ -1,8 +1,7 @@
 import { X, Phone, Mail, MapPin, Globe, Copy } from "lucide-react";
 import toast from "react-hot-toast";
-import { api } from "../api/client";
+import { assetUrl } from "../api/client";
 
-const API_BASE_URL = api.defaults.baseURL.replace("/api", "");
 
 export default function ContactDialog({ data, isOpen, onClose, accent }) {
   if (!isOpen) return null;
@@ -83,7 +82,7 @@ END:VCARD`;
             <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center overflow-hidden">
               {data?.logoUrl ? (
                 <img
-                  src={API_BASE_URL +data.logoUrl}
+                  src={assetUrl(data.logoUrl)}
                   alt={data.name}
                   className="w-full h-full object-cover"
                 />

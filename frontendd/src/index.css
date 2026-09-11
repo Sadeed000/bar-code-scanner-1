@@ -60,7 +60,8 @@
 .admin-content .card-elevated { transition: box-shadow .2s ease; }
 .admin-content .card-elevated:hover { box-shadow: 0 6px 24px -12px #15243d30; }
 .admin-content .overflow-x-auto { overscroll-behavior-x: contain; }
-.admin-sidebar { background: #121f35; color: #a7b5ca; }
+.admin-sidebar { height: 100dvh; overflow-y: auto; overscroll-behavior: contain; align-self: flex-start; background: #121f35; color: #a7b5ca; scrollbar-width: thin; scrollbar-color: #45576f #121f35; }
+.admin-sidebar > * { flex-shrink: 0; }
 .admin-nav-link { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; transition: background .18s, color .18s; }
 .admin-nav-link:hover { color: white; background: #ffffff09; }
 .admin-nav-link.active { color: white; background: #293b57; box-shadow: inset 3px 0 #9db8ff; }

@@ -1,7 +1,8 @@
+import { assetUrl } from "../api/client";
 import { useEffect, useState } from "react";
 import { ImagePlus, Upload } from "lucide-react";
 
-export default function LogoUpload({ form, setForm, baseUrl }) {
+export default function LogoUpload({ form, setForm }) {
   const [preview, setPreview] = useState("");
   const size = form?.theme?.logoSize ?? 112;
   useEffect(() => {
@@ -13,7 +14,7 @@ export default function LogoUpload({ form, setForm, baseUrl }) {
     setPreview(url);
     return () => URL.revokeObjectURL(url);
   }, [form?.logoFile]);
-  const src = form?.logoFile ? preview : form?.logoUrl ? baseUrl + form.logoUrl : "";
+  const src = form?.logoFile ? preview : form?.logoUrl ? assetUrl(form.logoUrl) : "";
   function resize(value) {
     setForm(current => ({ ...current, theme: { ...current.theme, logoSize: value } }));
   }

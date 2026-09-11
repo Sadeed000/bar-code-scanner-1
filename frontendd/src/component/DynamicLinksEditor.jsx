@@ -1,13 +1,9 @@
 import { ImagePlus, Plus, Trash2, Upload, Share2 } from "lucide-react";
 import { useState } from "react";
-import { api } from "../api/client";
+import { api, assetUrl } from "../api/client";
 import toast from "react-hot-toast";
 
-export function iconUrl(value) {
-  return value?.startsWith("/uploads/")
-    ? api.defaults.baseURL.replace(/\/api\/?$/, "") + value
-    : value;
-}
+export const iconUrl = assetUrl;
 
 function LinkRow({ item, update, remove, busy, setBusy }) {
   const [uploading, setUploading] = useState(false);

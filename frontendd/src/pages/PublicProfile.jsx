@@ -6,12 +6,11 @@ import IconTile from "../component/IconTile";
 import ContactDialog from "../component/ContactDialog";
 import DecorativeBackground from "../component/DecorativeBackground";
 import useTemplateColors from "../component/useTemplateColors";
-import { api } from "../api/client";
+import { api, assetUrl } from "../api/client";
 import { Info, Phone, Shield, FileText, Menu, Hamburger } from "lucide-react";
 import { ArrowLeft, Gem, Star, Copy, ExternalLink } from "lucide-react";
 import toast from "react-hot-toast";
 
-const API_BASE_URL = api.defaults.baseURL.replace("/api", "");
 
 import agoda from "../assets/icons/agoda.png";
 import airbnb from "../assets/icons/airbnb.png";
@@ -194,9 +193,7 @@ export default function PublicProfile() {
   const { slug } = useParams();
   const [data, setData] = useState(null);
   const backgroundPath = data?.backgroundUrl;
-  const backgroundSource = backgroundPath
-    ? (/^https?:\/\//i.test(backgroundPath) ? backgroundPath : API_BASE_URL + backgroundPath)
-    : "";
+  const backgroundSource = assetUrl(backgroundPath);
   const backgroundTemplateUrl = backgroundSource && data?.updatedAt
     ? `${backgroundSource}${backgroundSource.includes("?") ? "&" : "?"}v=${encodeURIComponent(data.updatedAt)}`
     : backgroundSource;
@@ -318,7 +315,7 @@ export default function PublicProfile() {
 
             {data?.logoUrl ? (
               <img
-                src={API_BASE_URL +data.logoUrl}
+                src={assetUrl(data.logoUrl)}
                 alt="logo"
                 className="w-full h-full object-cover"
               />
@@ -383,7 +380,7 @@ export default function PublicProfile() {
         {data?.watermarkUrl && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
             <img
-              src={API_BASE_URL +data.watermarkUrl}
+              src={assetUrl(data.watermarkUrl)}
               alt="watermark"
               className="w-[280px] md:w-[300px] opacity-[0.04] object-contain"
             />
@@ -410,7 +407,7 @@ export default function PublicProfile() {
             <div className="max-w-full flex items-center justify-center overflow-hidden" style={{ width: data?.theme?.logoSize ?? 112, height: data?.theme?.logoSize ?? 112 }}>
               {data.logoUrl ? (
                 <img
-                  src={API_BASE_URL +data.logoUrl}
+                  src={assetUrl(data.logoUrl)}
                   alt={data.name}
                   className="w-full h-full object-contain rounded-2xl"
                 />
@@ -856,7 +853,7 @@ export default function PublicProfile() {
             {/* MAIN IMAGE */}
             <div className="flex items-center justify-center mb-5">
               <img
-                src={API_BASE_URL +data.gallery[currentImage]}
+                src={assetUrl(data.gallery[currentImage])}
                 alt="gallery"
                 className="max-h-[420px] object-contain rounded-xl"
               />
@@ -868,7 +865,7 @@ export default function PublicProfile() {
               {data.gallery.map((img, index) => (
                 <img
                   key={index}
-                  src={API_BASE_URL +img}
+                  src={assetUrl(img)}
                   alt="thumb"
                   onClick={() => setCurrentImage(index)}
                   className={`w-20 h-20 object-cover rounded-lg cursor-pointer border transition 

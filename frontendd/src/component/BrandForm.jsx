@@ -1,10 +1,9 @@
 import LogoUpload from "./LogoUpload";
 import DynamicLinksEditor from "./DynamicLinksEditor";
 import { useState, useEffect, useRef } from "react";
-import { api } from "../api/client";
+import { api, assetUrl } from "../api/client";
 import toast from "react-hot-toast";
 
-const API_BASE_URL = api.defaults.baseURL.replace("/api", "");
 
 // Web-safe stacks only — no webfont request, so a slow or blocked CDN can never
 // leave a brand page without its font.
@@ -338,7 +337,7 @@ export default function BrandForm({ form, setForm }) {
               className={inputClass}
             />
           </div>
-<LogoUpload form={form} setForm={setForm} baseUrl={API_BASE_URL} />
+<LogoUpload form={form} setForm={setForm}  />
 
 {/* WATERMARK UPLOAD */}
 <div className="sm:col-span-2 lg:col-span-2">
@@ -381,7 +380,7 @@ export default function BrandForm({ form, setForm }) {
       src={
         form?.watermarkFile
           ? URL.createObjectURL(form.watermarkFile)
-          : `${API_BASE_URL}${form.watermarkUrl}`
+          : assetUrl(form.watermarkUrl)
       }
       alt="watermark preview"
       className="h-20 w-full max-w-[220px] mt-2 object-contain border border-slate-200 rounded-lg p-2 bg-white"
@@ -448,7 +447,7 @@ export default function BrandForm({ form, setForm }) {
         src={
           form?.backgroundFile
             ? URL.createObjectURL(form.backgroundFile)
-            : `${API_BASE_URL}${form.backgroundUrl}`
+            : assetUrl(form.backgroundUrl)
         }
         alt="background preview"
         className="h-40 w-full max-w-[160px] mt-2 object-cover border border-slate-200 rounded-lg bg-white"
@@ -512,7 +511,7 @@ export default function BrandForm({ form, setForm }) {
       {form.gallery.map((img, i) => (
         <img
           key={`existing-${i}`}
-          src={`${API_BASE_URL}${img}`}
+          src={assetUrl(img)}
           alt="gallery"
           className="h-20 w-full object-cover border border-slate-200 rounded-lg"
         />
@@ -569,7 +568,7 @@ export default function BrandForm({ form, setForm }) {
               {form?.gallery?.[i] && !form?.galleryFiles?.[i] && (
                 <div className="mt-2">
                   <img
-                    src={form.gallery[i]}
+                    src={assetUrl(form.gallery[i])}
                     alt={`current gallery ${i + 1}`}
                     className="h-20 w-full object-cover border border-slate-200 rounded-lg"
                   />
@@ -705,12 +704,12 @@ export default function BrandForm({ form, setForm }) {
         <div className="border-t border-slate-200 pt-6">
           <h3 className="text-base md:text-lg font-semibold text-slate-900 mb-4">QR Code</h3>
           <img
-            src={form.qrCodeUrl}
+            src={assetUrl(form.qrCodeUrl)}
             alt="QR Code"
             className="w-32 md:w-40 border border-slate-200 rounded-lg p-4 bg-white"
           />
           <a
-            href={form.qrCodeUrl}
+            href={assetUrl(form.qrCodeUrl)}
             download
             className="block text-blue-700 hover:text-blue-700 text-xs md:text-sm mt-3 font-medium transition cursor-pointer"
           >

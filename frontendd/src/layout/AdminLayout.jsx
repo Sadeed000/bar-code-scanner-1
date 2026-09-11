@@ -85,9 +85,9 @@ export default function AdminLayout() {
           <p className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-[.16em] text-slate-500">Account</p>
           <NavLink to="/admin/settings" onClick={closeMenus} className={({ isActive }) => `admin-nav-link ${isActive ? "active" : ""}`}><Settings size={19} />Settings</NavLink>
         </div>
-        <div className="mt-auto pt-8">
-          <div className="rounded-xl border border-white/10 bg-white/[.03] p-4"><ShieldCheck size={20} className="mb-2 text-blue-200" /><p className="text-xs font-medium text-slate-200">Your workspace, connected.</p><p className="mt-1 text-xs leading-relaxed text-slate-400">Manage your brands and customer connections in one place.</p></div>
-          <button onClick={logout} className="admin-nav-link mt-4 w-full"><LogOut size={18} />Sign out</button>
+        <div className="mt-auto pt-2">
+          {/* <div className="rounded-xl border border-white/10 bg-white/[.03] p-4"><ShieldCheck size={20} className="mb-2 text-blue-200" /><p className="text-xs font-medium text-slate-200">Your workspace, connected.</p><p className="mt-1 text-xs leading-relaxed text-slate-400">Manage your brands and customer connections in one place.</p></div> */}
+          <button onClick={logout} className="admin-nav-link w-full"><LogOut size={18} />Sign out</button>
         </div>
       </aside>
       <div className="min-w-0 flex-1">

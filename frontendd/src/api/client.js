@@ -1,9 +1,11 @@
 import axios from "axios";
+import { resolveApiBase, resolveAssetUrl } from "./urls";
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ||
-    `${window.location.origin}/api`,
+  baseURL: resolveApiBase(import.meta.env.VITE_API_BASE_URL, window.location.origin),
 });
+
+export const assetUrl = value => resolveAssetUrl(value, api.defaults.baseURL);
 
 // Initialize auth token from localStorage on app load
 export function initializeAuthToken() {
@@ -28,7 +30,8 @@ export function setAuthToken(token) {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const isLoginRequest = /\/auth\/login\/?(?:\?|$)/.test(error.config?.url || "");
+    if (error.response?.status === 401 && !isLoginRequest) {
       // Clear auth on unauthorized response
       localStorage.removeItem("token");
       localStorage.removeItem("user");

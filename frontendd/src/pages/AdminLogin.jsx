@@ -1,4 +1,4 @@
-import { QrCode, ArrowRight, ShieldCheck, Eye, EyeOff } from "lucide-react";
+﻿import { QrCode, ArrowRight, ShieldCheck, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, setAuthToken } from "../api/client";
@@ -21,7 +21,7 @@ async function onSubmit(e) {
   setSubmitting(true);
 
   try {
-    const res = await api.post("/auth/login", { email, password });
+    const res = await api.post("/auth/login", { email: email.trim().toLowerCase(), password }, { timeout: 15000 });
 
     const token = res?.data?.data?.token;
     const user = res?.data?.data?.user;
@@ -48,11 +48,11 @@ async function onSubmit(e) {
     }
 
   } catch (err) {
-    console.log("Login Error:", err);
-
-    setErr("Invalid login");
-    toast.error(err?.response?.data?.message ||
-      (!err.response ? "Cannot reach the server. Check your connection and try again." : "Login failed"));
+    const message = err?.response?.data?.message ||
+      (err.code === "ECONNABORTED" ? "The server took too long to respond. Please try again." :
+        !err.response ? "Cannot reach the server. Check your connection and try again." : "Login failed. Please try again.");
+    setErr(message);
+    toast.error(message);
   } finally { setSubmitting(false); }
 }
   return (
@@ -69,14 +69,15 @@ async function onSubmit(e) {
           <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200 bg-white text-navy-900 shadow-sm"><ShieldCheck size={25} /></div>
           <h2 className="text-3xl font-semibold tracking-tight text-navy-950">Welcome back</h2><p className="mt-2 mb-8 text-sm text-slate-500">Sign in to your management workspace.</p>
           <form onSubmit={onSubmit} className="space-y-5">
-            <div><label htmlFor="login-email" className="label">Email address</label><input id="login-email" type="email" autoComplete="username" className="input-field" placeholder="you@company.com" value={email} onChange={e => setEmail(e.target.value)} required /></div>
+            <div><label htmlFor="login-email" className="label">Email address</label><input id="login-email" type="email" inputMode="email" autoCapitalize="none" autoCorrect="off" spellCheck={false} autoComplete="username" className="input-field" placeholder="you@company.com" value={email} onChange={e => setEmail(e.target.value)} required /></div>
             <div><label htmlFor="login-password" className="label">Password</label><div className="relative"><input id="login-password" type={showPassword ? "text" : "password"} autoComplete="current-password" className="input-field pr-12" placeholder="Enter your password" value={password} onChange={e => setPassword(e.target.value)} required /><button type="button" aria-label={showPassword ? "Hide password" : "Show password"} aria-pressed={showPassword} onClick={() => setShowPassword(!showPassword)} className="absolute right-1 top-1 rounded-lg p-2.5 text-slate-400 hover:text-slate-700">{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button></div></div>
             {err && <p role="alert" className="rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">{err}</p>}
-            <button type="submit" disabled={submitting} className="btn btn-primary w-full py-3">{submitting ? "Signing in…" : "Sign in"}<ArrowRight size={17} /></button>
+            <button type="submit" disabled={submitting} className="btn btn-primary w-full py-3">{submitting ? "Signing inâ€¦" : "Sign in"}<ArrowRight size={17} /></button>
           </form>
-          <p className="mt-8 border-t border-slate-200 pt-6 text-center text-xs text-slate-400">Sparrownix · Management Suite</p>
+          <p className="mt-8 border-t border-slate-200 pt-6 text-center text-xs text-slate-400">Sparrownix Â· Management Suite</p>
         </div>
       </main>
     </div>
   );
 }
+

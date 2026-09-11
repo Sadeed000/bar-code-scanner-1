@@ -1,12 +1,11 @@
 import Modal from "../component/Modal";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { api, setAuthToken } from "../api/client";
+import { api, setAuthToken, assetUrl } from "../api/client";
 import { toast } from "react-hot-toast";
 import BrandForm from "../component/BrandForm";
 import { Tag, Users, Smartphone, CheckCircle, IndianRupee, Plus, ArrowRight } from "lucide-react";
 
-const API_BASE_URL = api.defaults.baseURL.replace("/api", "");
 
 export default function AdminDashboard() {
   const nav = useNavigate();
@@ -50,7 +49,6 @@ const [showScanner, setShowScanner] = useState(false);  // ← Add this line
   });
 
   const closeModel = () => setShowModal(false);
-  const brandLogo = API_BASE_URL;
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -311,7 +309,7 @@ const [showScanner, setShowScanner] = useState(false);  // ← Add this line
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-600/20 flex items-center justify-center overflow-hidden">
                       {brand.logoUrl ? (
                         <img
-                          src={brandLogo + brand.logoUrl}
+                          src={assetUrl(brand.logoUrl)}
                           alt={brand.name}
                           className="w-full h-full object-cover"
                         />

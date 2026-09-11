@@ -1,14 +1,13 @@
 import Modal from "../component/Modal";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { api, setAuthToken } from "../api/client";
+import { api, setAuthToken, assetUrl } from "../api/client";
 import { toast } from "react-hot-toast";
 import BrandForm from "../component/BrandForm";
 import ConfirmDialog from "../component/ConfirmDialog";
 import useDebounce from "../utils/useDebounce";
 import { QrCode, Download, X, Pencil, Trash2, Plus, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 
-const API_BASE_URL = api.defaults.baseURL.replace("/api", "");
 
 export default function AdminBrands() {
   const nav = useNavigate();
@@ -23,7 +22,6 @@ export default function AdminBrands() {
   const [qrModal, setQrModal] = useState(false);
   const [selectedBrand, setSelectedBrand] = useState(null);
   const user = JSON.parse(localStorage.getItem("user") || "{}");
-  const brandLogo = API_BASE_URL;
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(5);
@@ -87,7 +85,7 @@ export default function AdminBrands() {
 
   function buildLogoSrc(brand) {
     if (!brand?.logoUrl) return "";
-    return `${brandLogo}${brand.logoUrl}`;
+    return assetUrl(brand.logoUrl);
   }
 
   function getDateRangeForTimeframe(value) {
@@ -287,7 +285,7 @@ export default function AdminBrands() {
   function downloadQR() {
     if (!selectedBrand?.qrCodeUrl) return;
     const link = document.createElement("a");
-    link.href = selectedBrand.qrCodeUrl;
+    link.href = assetUrl(selectedBrand.qrCodeUrl);
     link.download = `${selectedBrand.name}-qr-code.png`;
     document.body.appendChild(link);
     link.click();
@@ -632,7 +630,7 @@ export default function AdminBrands() {
               <div className="p-4 bg-white rounded-xl">
                 {selectedBrand.qrCodeUrl ? (
                   <img
-                    src={selectedBrand.qrCodeUrl}
+                    src={assetUrl(selectedBrand.qrCodeUrl)}
                     alt="QR Code"
                     className="w-56 h-56 object-contain"
                   />
