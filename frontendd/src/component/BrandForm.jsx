@@ -108,14 +108,14 @@ export default function BrandForm({ form, setForm }) {
     };
   }, []);
 
-  const inputClass = "w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition";
-  const labelClass = "block text-xs md:text-sm font-medium text-gray-300 mb-2";
+  const inputClass = "input-field";
+  const labelClass = "label";
 
   return (
 <div className="space-y-6">
       {/* BASIC INFO */}
       <div>
-        <h3 className="text-base md:text-lg font-semibold text-white mb-4">Basic Information</h3>
+        <h3 className="text-base md:text-lg font-semibold text-slate-900 mb-4">Basic Information</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3 md:gap-4">
 
 
@@ -172,7 +172,7 @@ export default function BrandForm({ form, setForm }) {
                       type="color"
                       value={themeValue("headingColor")}
                       onChange={(e) => updateTheme("headingColor", e.target.value)}
-                      className="h-10 w-16 border border-gray-600 rounded-lg cursor-pointer bg-gray-700"
+                      className="h-10 w-16 border border-slate-200 rounded-lg cursor-pointer bg-slate-100"
                     />
                     <input
                       type="text"
@@ -233,7 +233,7 @@ export default function BrandForm({ form, setForm }) {
                       type="color"
                       value={themeValue("taglineColor")}
                       onChange={(e) => updateTheme("taglineColor", e.target.value)}
-                      className="h-10 w-16 border border-gray-600 rounded-lg cursor-pointer bg-gray-700"
+                      className="h-10 w-16 border border-slate-200 rounded-lg cursor-pointer bg-slate-100"
                     />
                     <input
                       type="text"
@@ -270,24 +270,24 @@ export default function BrandForm({ form, setForm }) {
   <div className="relative" ref={dropdownRef}>
     <div
       onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition cursor-pointer"
+      className="w-full bg-slate-100 border border-slate-200 rounded-lg px-4 py-2 text-slate-900 placeholder-gray-500 focus:outline-none focus:border-blue-500 transition cursor-pointer"
     >
       {form?.category || "Choose category"}
     </div>
 
     {showCategoryDropdown && (
-      <div className="absolute w-full bg-gray-800 border border-gray-600 rounded-lg mt-1 max-h-60 overflow-y-auto z-50">
+      <div className="absolute w-full bg-white border border-slate-200 rounded-lg mt-1 max-h-60 overflow-y-auto z-50">
         
         <input
           type="text"
           placeholder="Search category..."
           value={categorySearch}
           onChange={(e) => setCategorySearch(e.target.value)}
-          className="w-full px-4 py-2 bg-gray-700 text-white border-b border-gray-600 outline-none"
+          className="w-full px-4 py-2 bg-slate-100 text-slate-900 border-b border-slate-200 outline-none"
         />
 
         {categorySearch.trim() && !categories.some(c => c.toLowerCase() === categorySearch.trim().toLowerCase()) && (
-          <button type="button" className="px-4 py-2 text-blue-300" onClick={async () => {
+          <button type="button" className="px-4 py-2 text-blue-700" onClick={async () => {
             const name = categorySearch.trim();
             if (!await createCategory(name)) return;
             setForm(current => ({ ...current, category: name }));
@@ -305,7 +305,7 @@ export default function BrandForm({ form, setForm }) {
                 setShowCategoryDropdown(false);
                 setCategorySearch("");
               }}
-              className="px-4 py-2 text-gray-200 hover:bg-gray-600 hover:text-white cursor-pointer text-sm transition-colors"
+              className="px-4 py-2 text-slate-700 hover:bg-slate-100 hover:text-slate-900 cursor-pointer text-sm transition-colors"
             >
               {c}
             </div>
@@ -364,7 +364,7 @@ export default function BrandForm({ form, setForm }) {
     </label>
 
     {form?.watermarkFile && (
-      <span className="text-xs md:text-sm text-gray-300 flex items-center">
+      <span className="text-xs md:text-sm text-slate-700 flex items-center">
         ✓ {form.watermarkFile.name}
       </span>
     )}
@@ -373,7 +373,7 @@ export default function BrandForm({ form, setForm }) {
 {/* WATERMARK PREVIEW */}
 {(form?.watermarkFile || form?.watermarkUrl) && (
   <div>
-    <p className="text-xs text-gray-400 mt-2">
+    <p className="text-xs text-slate-500 mt-2">
       {form?.watermarkFile ? "Preview:" : "Current watermark:"}
     </p>
 
@@ -384,7 +384,7 @@ export default function BrandForm({ form, setForm }) {
           : `${API_BASE_URL}${form.watermarkUrl}`
       }
       alt="watermark preview"
-      className="h-20 w-full max-w-[220px] mt-2 object-contain border border-gray-600 rounded-lg p-2 bg-gray-800"
+      className="h-20 w-full max-w-[220px] mt-2 object-contain border border-slate-200 rounded-lg p-2 bg-white"
     />
   </div>
 )}
@@ -419,7 +419,7 @@ export default function BrandForm({ form, setForm }) {
     </label>
 
     {form?.backgroundFile && (
-      <span className="text-xs md:text-sm text-gray-300 flex items-center">
+      <span className="text-xs md:text-sm text-slate-700 flex items-center">
         ✓ {form.backgroundFile.name}
       </span>
     )}
@@ -440,7 +440,7 @@ export default function BrandForm({ form, setForm }) {
   {/* BACKGROUND PREVIEW */}
   {(form?.backgroundFile || form?.backgroundUrl) && (
     <div>
-      <p className="text-xs text-gray-400 mt-2">
+      <p className="text-xs text-slate-500 mt-2">
         {form?.backgroundFile ? "Preview:" : "Current background:"}
       </p>
 
@@ -451,7 +451,7 @@ export default function BrandForm({ form, setForm }) {
             : `${API_BASE_URL}${form.backgroundUrl}`
         }
         alt="background preview"
-        className="h-40 w-full max-w-[160px] mt-2 object-cover border border-gray-600 rounded-lg bg-gray-800"
+        className="h-40 w-full max-w-[160px] mt-2 object-cover border border-slate-200 rounded-lg bg-white"
       />
     </div>
   )}
@@ -501,7 +501,7 @@ export default function BrandForm({ form, setForm }) {
     </label>
 
     {(form?.galleryFiles?.length || form?.gallery?.length) > 0 && (
-      <span className="text-xs md:text-sm text-gray-300">
+      <span className="text-xs md:text-sm text-slate-700">
         ✓ {(form?.galleryFiles?.length || 0) + (form?.gallery?.length || 0)} images selected
       </span>
     )}
@@ -514,7 +514,7 @@ export default function BrandForm({ form, setForm }) {
           key={`existing-${i}`}
           src={`${API_BASE_URL}${img}`}
           alt="gallery"
-          className="h-20 w-full object-cover border border-gray-600 rounded-lg"
+          className="h-20 w-full object-cover border border-slate-200 rounded-lg"
         />
       ))}
     </div>
@@ -527,7 +527,7 @@ export default function BrandForm({ form, setForm }) {
           key={`new-${i}`}
           src={URL.createObjectURL(file)}
           alt="preview"
-          className="h-20 w-full object-cover border border-gray-600 rounded-lg"
+          className="h-20 w-full object-cover border border-slate-200 rounded-lg"
         />
       ))}
     </div>
@@ -537,7 +537,7 @@ export default function BrandForm({ form, setForm }) {
 
       {/* GALLERY UPLOAD */}
       {/* <div>
-        <h3 className="text-base md:text-lg font-semibold text-white mb-4">Gallery (Up to 6 images)</h3>
+        <h3 className="text-base md:text-lg font-semibold text-slate-900 mb-4">Gallery (Up to 6 images)</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 6 }, (_, i) => (
             <div key={i}>
@@ -561,9 +561,9 @@ export default function BrandForm({ form, setForm }) {
                   <img
                     src={URL.createObjectURL(form.galleryFiles[i])}
                     alt={`gallery ${i + 1}`}
-                    className="h-20 w-full object-cover border border-gray-600 rounded-lg"
+                    className="h-20 w-full object-cover border border-slate-200 rounded-lg"
                   />
-                  <p className="text-xs text-gray-300 mt-1">{form.galleryFiles[i].name}</p>
+                  <p className="text-xs text-slate-700 mt-1">{form.galleryFiles[i].name}</p>
                 </div>
               )}
               {form?.gallery?.[i] && !form?.galleryFiles?.[i] && (
@@ -571,9 +571,9 @@ export default function BrandForm({ form, setForm }) {
                   <img
                     src={form.gallery[i]}
                     alt={`current gallery ${i + 1}`}
-                    className="h-20 w-full object-cover border border-gray-600 rounded-lg"
+                    className="h-20 w-full object-cover border border-slate-200 rounded-lg"
                   />
-                  <p className="text-xs text-gray-400">Current image</p>
+                  <p className="text-xs text-slate-500">Current image</p>
                 </div>
               )}
             </div>
@@ -584,8 +584,8 @@ export default function BrandForm({ form, setForm }) {
       <DynamicLinksEditor form={form} setForm={setForm} />
 
       {/* BRAND INFORMATION */}
-      <div className="border-t border-gray-700 pt-6">
-        <h3 className="text-base md:text-lg font-semibold text-white mb-4">Brand Information</h3>
+      <div className="border-t border-slate-200 pt-6">
+        <h3 className="text-base md:text-lg font-semibold text-slate-900 mb-4">Brand Information</h3>
         <div className="space-y-4">
           {/* <div>
             <label className={labelClass}>Headline</label>
@@ -702,17 +702,17 @@ export default function BrandForm({ form, setForm }) {
 
       {/* QR CODE */}
       {form?.qrCodeUrl && (
-        <div className="border-t border-gray-700 pt-6">
-          <h3 className="text-base md:text-lg font-semibold text-white mb-4">QR Code</h3>
+        <div className="border-t border-slate-200 pt-6">
+          <h3 className="text-base md:text-lg font-semibold text-slate-900 mb-4">QR Code</h3>
           <img
             src={form.qrCodeUrl}
             alt="QR Code"
-            className="w-32 md:w-40 border border-gray-600 rounded-lg p-4 bg-white"
+            className="w-32 md:w-40 border border-slate-200 rounded-lg p-4 bg-white"
           />
           <a
             href={form.qrCodeUrl}
             download
-            className="block text-blue-400 hover:text-blue-300 text-xs md:text-sm mt-3 font-medium transition cursor-pointer"
+            className="block text-blue-700 hover:text-blue-700 text-xs md:text-sm mt-3 font-medium transition cursor-pointer"
           >
             ⬇️ Download QR Code
           </a>

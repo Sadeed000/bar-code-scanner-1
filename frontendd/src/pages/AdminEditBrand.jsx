@@ -1,3 +1,4 @@
+import { X, ScanLine } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { api, setAuthToken } from "../api/client";
@@ -113,10 +114,10 @@ if (form.gallery && form.gallery.length > 0) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-900">
+      <div className="flex items-center justify-center min-h-screen bg-slate-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
-          <p className="mt-4 text-gray-300">Loading brand...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-200 mx-auto"></div>
+          <p className="mt-4 text-slate-700">Loading brand...</p>
         </div>
       </div>
     );
@@ -124,28 +125,29 @@ if (form.gallery && form.gallery.length > 0) {
 
   if (!form) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-900">
-        <p className="text-gray-300">Brand not found</p>
+      <div className="flex items-center justify-center min-h-screen bg-slate-50">
+        <p className="text-slate-700">Brand not found</p>
       </div>
     );
   }
 
   return (
-    <div className="fixed inset-0 md:ml-64 bg-black/60 flex items-center justify-center p-4 z-50">
-      <div className="bg-gray-800 w-full max-w-4xl rounded-2xl p-4 md:p-6 max-h-[90vh] overflow-y-auto">
+    <div className="p-4 md:p-8">
+      <div className="card mx-auto w-full max-w-5xl">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
             <div>
-              <h2 className="text-xl md:text-2xl font-bold text-white">Edit Brand</h2>
-              <p className="text-gray-400 text-xs md:text-sm mt-1">{form.name}</p>
-              <p className="text-xs md:text-sm text-purple-300 mt-1">
-                📱 {scanCount} scans
+              <h2 className="text-xl md:text-2xl font-bold text-slate-900">Edit Brand</h2>
+              <p className="text-slate-500 text-xs md:text-sm mt-1">{form.name}</p>
+              <p className="text-xs md:text-sm text-purple-700 mt-1">
+                <ScanLine size={14} className="inline mr-1" /> {scanCount} scans
               </p>
             </div>
             <button
               onClick={() => nav("/admin/brands")}
-              className="text-gray-400 hover:text-white text-2xl cursor-pointer flex-shrink-0"
+              aria-label="Close brand editor"
+              className="text-slate-500 hover:text-slate-900 text-2xl cursor-pointer flex-shrink-0"
             >
-              ✕
+              <X size={20} />
             </button>
           </div>
 
@@ -154,7 +156,7 @@ if (form.gallery && form.gallery.length > 0) {
           <div className="flex flex-col-reverse sm:flex-row gap-3 justify-end mt-6">
             <button
               onClick={() => nav("/admin/brands")}
-              className="border border-gray-600 px-4 py-2 rounded-lg text-gray-300 hover:bg-gray-700 transition cursor-pointer"
+              className="border border-slate-200 px-4 py-2 rounded-lg text-slate-700 hover:bg-slate-100 transition cursor-pointer"
             >
               Cancel
             </button>

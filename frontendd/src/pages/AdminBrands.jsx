@@ -1,3 +1,4 @@
+import Modal from "../component/Modal";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, setAuthToken } from "../api/client";
@@ -5,8 +6,7 @@ import { toast } from "react-hot-toast";
 import BrandForm from "../component/BrandForm";
 import ConfirmDialog from "../component/ConfirmDialog";
 import useDebounce from "../utils/useDebounce";
-import { QrCode, Download, X } from "lucide-react";
-import { Pencil, Trash2 } from "lucide-react";
+import { QrCode, Download, X, Pencil, Trash2, Plus, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 
 const API_BASE_URL = api.defaults.baseURL.replace("/api", "");
 
@@ -296,10 +296,10 @@ export default function AdminBrands() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading brands...</p>
+          <div className="w-12 h-12 rounded-full border-4 border-slate-200 border-t-blue-500 animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-500">Loading brands...</p>
         </div>
       </div>
     );
@@ -308,36 +308,41 @@ export default function AdminBrands() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        {/* HEADER */}
-        <div className="mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        {/* PAGE HEADER */}
+        <div className="mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-start gap-6 animate-fade-in">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">Brands</h1>
-            <p className="text-gray-400 text-sm md:text-base">Manage all your brand profiles</p>
+            <h1 className="text-4xl font-bold text-slate-900 mb-2">Brands</h1>
+            <p className="text-slate-500">Manage and configure all your brand profiles</p>
           </div>
           <button
             onClick={openCreateModal}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition cursor-pointer"
+            className="btn btn-primary inline-flex whitespace-nowrap"
           >
-            + Create Brand
+            <Plus className="w-5 h-5" />
+            <span>Create Brand</span>
           </button>
         </div>
 
-        {/* FILTERS */}
-        <div className="mb-4 bg-gray-800 border border-gray-700 rounded-xl px-4 py-3">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            {/* Left: search + timeframe */}
-            <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
-              <input
-                type="text"
-                placeholder="Search by name / slug / category..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2.5 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
-              />
+        {/* FILTERS BAR */}
+        <div className="card-compact mb-6 animate-fade-in">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            {/* Search & Timeframe */}
+            <div className="flex min-w-0 flex-1 flex-col gap-4 sm:flex-row sm:items-center">
+              <div className="relative min-w-0 flex-1">
+                <Search className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
+                <input
+                  type="text"
+                  placeholder="Search brands by name..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="input-field pl-10 w-full"
+                />
+              </div>
               <select
                 value={timeframe}
                 onChange={(e) => setTimeframe(e.target.value)}
-                className="w-full sm:w-44 px-3 py-2.5 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500 transition"
+                aria-label="Filter brands by date"
+                className="input-field sm:w-40 sm:shrink-0"
               >
                 <option value="all">All time</option>
                 <option value="today">Today</option>
@@ -347,106 +352,102 @@ export default function AdminBrands() {
               </select>
             </div>
 
-            {/* Right: info text + page size + clear */}
-            <div className="flex flex-wrap items-center justify-between gap-3 md:justify-end md:pl-4">
-              <div className="text-xs sm:text-sm text-gray-400">
-                Showing <span className="text-gray-200 font-medium">{brands.length}</span> of{" "}
-                <span className="text-gray-200 font-medium">{total}</span> brands
+            {/* Results & Controls */}
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center justify-between lg:justify-end gap-4">
+              <div className="text-sm text-slate-500">
+                Showing <span className="font-medium text-slate-700">{brands.length}</span> of{" "}
+                <span className="font-medium text-slate-700">{total}</span> brands
               </div>
-
-              <div className="flex items-center gap-2">
-                <select
-                  value={limit}
-                  onChange={(e) => setLimit(Number(e.target.value))}
-                  className="px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-xs sm:text-sm focus:outline-none focus:border-blue-500 transition"
-                >
-                  <option value={5}>5 / page</option>
-                  <option value={10}>10 / page</option>
-                  <option value={20}>20 / page</option>
-                  <option value={50}>50 / page</option>
-                </select>
-
-                <button
-                  onClick={() => {
-                    setSearchTerm("");
-                    setTimeframe("all");
-                    setPage(1);
-                  }}
-                  className="px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-gray-200 text-xs sm:text-sm hover:border-blue-500 transition cursor-pointer"
-                >
-                  Clear
-                </button>
-              </div>
+              <select
+                value={limit}
+                onChange={(e) => setLimit(Number(e.target.value))}
+                className="input-field input-field-sm w-full sm:w-auto"
+              >
+                <option value={5}>5 per page</option>
+                <option value={10}>10 per page</option>
+                <option value={20}>20 per page</option>
+                <option value={50}>50 per page</option>
+              </select>
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setTimeframe("all");
+                  setPage(1);
+                }}
+                className="btn btn-small btn-secondary w-full sm:w-auto"
+              >
+                Reset
+              </button>
             </div>
           </div>
         </div>
 
         {/* TABLE */}
         {brands.length === 0 ? (
-          <div className="bg-gray-800 border border-gray-700 rounded-xl p-12 text-center">
-            <p className="text-gray-400 text-lg">
+          <div className="card-elevated text-center py-16 animate-fade-in">
+            <QrCode className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+            <p className="text-slate-500 font-medium text-lg mb-2">
               {searchTerm || timeframe !== "all" ? "No brands match your filters" : "No brands created yet"}
             </p>
+            <p className="text-gray-500 text-sm mb-6">
+              {!searchTerm && timeframe === "all" && "Create your first brand to get started"}
+            </p>
+            {!searchTerm && timeframe === "all" && (
+              <button
+                onClick={openCreateModal}
+                className="btn btn-primary inline-flex"
+              >
+                <Plus className="w-4 h-4" />
+                Create Brand
+              </button>
+            )}
           </div>
         ) : (
-          <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
+          <div className="card-elevated overflow-hidden animate-fade-in">
+            {/* Table Wrapper */}
             <div className="overflow-x-auto">
-              <table className="min-w-full">
-                <thead className="bg-gray-900/60">
-                  <tr className="text-left text-xs text-gray-400">
-                    <th className="px-3 md:px-4 py-3 font-semibold w-[260px]">Brand</th>
-                    <th className="px-3 md:px-4 py-3 font-semibold w-[120px]">Category</th>
-                    <th className="px-2 md:px-4 py-3 font-semibold">Payment</th>
-                    <th className="px-2 md:px-4 py-3 font-semibold">Links</th>
-                    <th className="px-2 md:px-4 py-3 font-semibold">QR Scans</th>
-                    <th className="hidden md:table-cell px-2 md:px-4 py-3 font-semibold">Created</th>
-                    <th className="px-2 md:px-4 py-3 font-semibold text-center">QR</th>
-
-                    <th className="pr-5 md:px-4 py-3 font-semibold text-center">
-                      Actions
-                    </th>                      </tr>
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-white border-b border-slate-200">
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Brand</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Category</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Payment</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Links</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">QR Scans</th>
+                    <th className="hidden lg:table-cell px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Created</th>
+                    <th className="px-6 py-4 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">QR</th>
+                    <th className="px-6 py-4 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+                  </tr>
                 </thead>
-
-                <tbody className="divide-y divide-gray-700">
+                <tbody className="divide-y divide-slate-200">
                   {brands.map((brand) => (
-                    <tr key={brand._id} className="hover:bg-gray-900/40 transition">
-                      <td className="px-2 md:px-4 py-4">
-                        <div className="flex items-center gap-2 md:gap-3 max-w-[220px]">                              <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg overflow-hidden bg-gray-700 border border-gray-600 flex-shrink-0">
-                          {brand.logoUrl ? (
-                            <img
-                              src={buildLogoSrc(brand)}
-                              alt={brand.name}
-                              className="h-full w-full object-cover"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <div className="h-full w-full flex items-center justify-center text-xl">🏷️</div>
-                          )}
-                        </div>
-
-                          <div className="min-w-0">
-                            <div className="flex flex-col gap-0.5">
-                              <div className="flex items-center gap-2">
-                                <div className="text-white font-semibold truncate">{brand.name}</div>
-                              </div>
-                              {(brand.ownerName || brand.createdBy?.name) && (
-                                <div className="text-[11px] text-indigo-300 truncate">
-                                  {brand.ownerName || brand.createdBy?.name}
-                                </div>
-                              )}
-                            </div>
-                            <div className="text-xs text-gray-400 truncate">/p/{brand.slug}</div>
-                            <div className="text-xs text-gray-500 truncate">
-                              {brand.contactNumber ? `📞 ${brand.contactNumber}` : "—"}{" "}
-                              {brand.tagline ? `• ${brand.tagline}` : ""}
-                            </div>
+                    <tr key={brand._id} className="hover:bg-slate-100 transition-colors">
+                      {/* Brand Info */}
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg overflow-hidden bg-gradient-to-br from-blue-500/20 to-purple-600/20 flex items-center justify-center flex-shrink-0">
+                            {brand.logoUrl ? (
+                              <img
+                                src={buildLogoSrc(brand)}
+                                alt={brand.name}
+                                className="w-full h-full object-cover"
+                                loading="lazy"
+                              />
+                            ) : (
+                              <QrCode className="w-5 h-5 text-gray-500" />
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-slate-900 truncate">{brand.name}</p>
+                            <p className="text-xs text-gray-500 truncate">/p/{brand.slug}</p>
                           </div>
                         </div>
                       </td>
 
-                      <td className="px-2 md:px-4 py-4">
+                      {/* Category */}
+                      <td className="px-6 py-4">
                         {brand.category ? (
-                          <span className="bg-blue-600/20 text-blue-300 text-xs px-2 md:px-3 py-1 rounded-full">
+                          <span className="badge badge-info text-xs">
                             {brand.category}
                           </span>
                         ) : (
@@ -454,65 +455,64 @@ export default function AdminBrands() {
                         )}
                       </td>
 
-                      <td className="px-2 md:px-4 py-4">
-                        <div className="text-xs md:text-sm text-gray-200">
-                          {brand.paymentType ? brand.paymentType : "cash"}
+                      {/* Payment */}
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-slate-700 font-medium">{brand.paymentType || "cash"}</div>
+                        <div className="text-xs text-green-700">₹{(brand.amount || 0).toLocaleString('en-IN')}</div>
+                      </td>
+
+                      {/* Links */}
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-medium text-slate-700">{brand.links?.length || 0}</div>
+                        <div className="text-xs text-gray-500">social links</div>
+                      </td>
+
+                      {/* QR Scans */}
+                      <td className="px-6 py-4">
+                        <span className="badge badge-primary font-medium">
+                          {brand.scanCount || 0} scans
+                        </span>
+                      </td>
+
+                      {/* Created Date */}
+                      <td className="hidden lg:table-cell px-6 py-4">
+                        <div className="text-sm text-slate-500">
+                          {formatDateTime(brand.createdAt)}
                         </div>
-                        <div className="text-xs text-green-400 font-medium">₹{brand.amount || 0}</div>
                       </td>
 
-                      <td className="px-2 md:px-4 py-4">
-                        <div className="text-xs md:text-sm text-gray-200">{brand.links?.length || 0}</div>
-                        <div className="text-xs text-gray-500 hidden md:block">
-                          {brand.googleReviewUrl ? "Google reviews set" : "Google reviews not set"}
-                        </div>
-                      </td>
-
-                      <td className="px-2 md:px-4 py-4">
-                        <div className="text-sm text-purple-300 font-medium">{brand.scanCount || 0}</div>
-                      </td>
-
-                      <td className="hidden md:table-cell px-2 md:px-4 py-4">
-                        <div className="text-xs md:text-sm text-gray-200">{formatDateTime(brand.createdAt)}</div>
-                      </td>
-                      <td className="px-2 md:px-4w text-center">
+                      {/* QR Code Button */}
+                      <td className="px-6 py-4 text-center">
                         {brand.qrCodeUrl ? (
                           <button
                             onClick={() => openQRModal(brand)}
-                            className="flex items-center justify-center mx-auto
-      w-10 h-10 rounded-lg
-      bg-gradient-to-br from-indigo-700 via-purple-700 to-fuchsia-700
-      hover:from-indigo-600 hover:via-purple-600 hover:to-fuchsia-600
-      text-white shadow-md hover:shadow-purple-900/40
-      transition-all duration-200"
-                            title="View QR"
+                            className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 text-purple-700 hover:text-purple-700 transition"
+                            title="View QR Code"
                           >
-                            <QrCode size={18} />
+                            <QrCode className="w-5 h-5" />
                           </button>
                         ) : (
                           <span className="text-gray-500 text-sm">—</span>
                         )}
                       </td>
 
-                      <td className="px-2 md:px-4 py-4">
+                      {/* Actions */}
+                      <td className="px-6 py-4">
                         <div className="flex justify-center gap-2">
-
                           <button
                             onClick={() => nav(`/admin/brands/${brand._id}`)}
-                            className="p-2 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 hover:text-blue-300 transition cursor-pointer"
-                            title="Edit Brand"
+                            className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-700 hover:text-blue-700 transition"
+                            title="Edit"
                           >
-                            <Pencil size={18} />
+                            <Pencil className="w-4 h-4" />
                           </button>
-
                           <button
                             onClick={() => deleteBrand(brand._id)}
-                            className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 transition cursor-pointer"
-                            title="Delete Brand"
+                            className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-700 hover:text-red-700 transition"
+                            title="Delete"
                           >
-                            <Trash2 size={18} />
+                            <Trash2 className="w-4 h-4" />
                           </button>
-
                         </div>
                       </td>
                     </tr>
@@ -521,41 +521,44 @@ export default function AdminBrands() {
               </table>
             </div>
 
-            {/* PAGINATION */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 py-3 bg-gray-900/40 border-t border-gray-700">
-              <div className="text-sm text-gray-400">
-                Page <span className="text-gray-200 font-medium">{page}</span> of{" "}
-                <span className="text-gray-200 font-medium">{totalPages}</span>
+            {/* Pagination */}
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-6 py-4 bg-white border-t border-slate-200">
+              <div className="text-sm text-slate-500">
+                Page <span className="font-medium text-slate-700">{page}</span> of{" "}
+                <span className="font-medium text-slate-700">{totalPages}</span>
               </div>
-
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setPage(1)}
                   disabled={page <= 1}
-                  className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-200 disabled:opacity-40 hover:border-blue-500 transition cursor-pointer"
+                  className="btn btn-small btn-secondary disabled:opacity-40"
+                  title="First page"
                 >
-                  First
+                  <ChevronsLeft className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page <= 1}
-                  className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-200 disabled:opacity-40 hover:border-blue-500 transition cursor-pointer"
+                  className="btn btn-small btn-secondary disabled:opacity-40"
+                  title="Previous page"
                 >
-                  Prev
+                  <ChevronLeft className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page >= totalPages}
-                  className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-200 disabled:opacity-40 hover:border-blue-500 transition cursor-pointer"
+                  className="btn btn-small btn-secondary disabled:opacity-40"
+                  title="Next page"
                 >
-                  Next
+                  <ChevronRight className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setPage(totalPages)}
                   disabled={page >= totalPages}
-                  className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-200 disabled:opacity-40 hover:border-blue-500 transition cursor-pointer"
+                  className="btn btn-small btn-secondary disabled:opacity-40"
+                  title="Last page"
                 >
-                  Last
+                  <ChevronsRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -565,95 +568,105 @@ export default function AdminBrands() {
 
       {/* CREATE BRAND MODAL */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50 p-4">
-          <div className="bg-gray-800 w-full max-w-4xl rounded-2xl p-6 max-h-[90vh] overflow-y-auto">
-            <div className="text-2xl font-bold mb-6 text-white">Create Brand</div>
+        <Modal onClose={() => setShowModal(false)} label="Create brand">
+          <div className="modal-content max-w-3xl animate-fade-in-up">
+            <div className="flex items-center justify-between mb-6 pb-6 border-b border-slate-200">
+              <div>
+                <h2 className="text-2xl font-bold text-slate-900">Create Brand</h2>
+                <p className="text-slate-500 text-sm mt-1">Set up a new brand profile</p>
+              </div>
+              <button aria-label="Close dialog"
+                onClick={() => setShowModal(false)}
+                className="text-slate-500 hover:text-slate-900 transition p-1"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
 
-            <BrandForm form={form} setForm={setForm} />
+            <div className="mb-6 max-h-[calc(90vh-200px)] overflow-y-auto">
+              <BrandForm form={form} setForm={setForm} />
+            </div>
 
-            <div className="flex justify-end gap-3 mt-6">
+            <div className="flex justify-end gap-3 pt-6 border-t border-slate-200">
               <button
                 onClick={() => setShowModal(false)}
-                className="border border-gray-600 px-4 py-2 rounded-lg text-gray-300 hover:bg-gray-700 transition cursor-pointer"
+                className="btn btn-secondary"
               >
                 Cancel
               </button>
-
               <button
                 onClick={createBrand}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition cursor-pointer"
+                className="btn btn-primary"
               >
                 Create Brand
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
 
+      {/* CONFIRM DELETE DIALOG */}
       <ConfirmDialog
         open={confirmOpen}
         title="Delete Brand"
-        message="Are you sure you want to delete this brand?"
+        message="Are you sure you want to delete this brand? This action cannot be undone."
         onCancel={() => setConfirmOpen(false)}
         onConfirm={handleDelete}
       />
 
       {/* QR CODE MODAL */}
       {qrModal && selectedBrand && (
-        <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50 p-4">
-          <div className="bg-gray-800 w-full max-w-sm rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div className="text-xl font-bold text-white">QR Code</div>
-              <button
+        <Modal onClose={() => setQrModal(false)} label="QR code">
+          <div className="modal-content max-w-sm animate-fade-in-up">
+            <div className="flex items-center justify-between mb-6 pb-6 border-b border-slate-200">
+              <h2 className="text-xl font-bold text-slate-900">QR Code</h2>
+              <button aria-label="Close dialog"
                 onClick={() => setQrModal(false)}
-                className="text-gray-400 hover:text-gray-200 cursor-pointer"
+                className="text-slate-500 hover:text-slate-900 transition p-1"
               >
-                <X size={24} />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="flex flex-col items-center gap-4">
-              <div className="p-4 bg-white rounded-lg">
+            <div className="flex flex-col items-center gap-6">
+              <div className="p-4 bg-white rounded-xl">
                 {selectedBrand.qrCodeUrl ? (
                   <img
                     src={selectedBrand.qrCodeUrl}
                     alt="QR Code"
-                    className="w-48 h-48 object-contain"
+                    className="w-56 h-56 object-contain"
                   />
                 ) : (
-                  <div className="w-48 h-48 flex items-center justify-center text-gray-500">
+                  <div className="w-56 h-56 flex items-center justify-center text-slate-500">
                     No QR Code
                   </div>
                 )}
               </div>
 
-              <div className="text-center">
-                <p className="text-white font-semibold">{selectedBrand.name}</p>
-                <p className="text-gray-400 text-sm">/{selectedBrand.slug}</p>
+              <div className="text-center w-full">
+                <p className="font-semibold text-slate-900 text-lg">{selectedBrand.name}</p>
+                <p className="text-slate-500 text-sm">/p/{selectedBrand.slug}</p>
               </div>
 
               <button
                 onClick={downloadQR}
                 disabled={!selectedBrand.qrCodeUrl}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-3 rounded-lg font-medium transition cursor-pointer flex items-center justify-center gap-2"
+                className="btn btn-primary w-full disabled:opacity-50"
               >
-                <Download size={18} />
+                <Download className="w-4 h-4" />
                 Download QR Code
               </button>
 
               <button
                 onClick={() => setQrModal(false)}
-                className="w-full bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition cursor-pointer"
+                className="btn btn-secondary w-full"
               >
                 Close
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
-
     </div>
-
-
   );
 }

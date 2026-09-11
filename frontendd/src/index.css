@@ -1,57 +1,79 @@
-@import "tailwindcss";
-
+﻿@import "tailwindcss";
+@theme {
+  --color-navy-950: #101b30;
+  --color-navy-900: #16243d;
+  --color-navy-800: #21334f;
+  --color-navy-700: #304765;
+  --color-accent-primary: #315ee7;
+  --color-accent-secondary: #315ee7;
+}
 @layer base {
-  button {
-    cursor: pointer;
-  }
+  body { margin: 0; font-family: Inter, "Segoe UI", system-ui, sans-serif; }
+  button { cursor: pointer; }
+  button:disabled { cursor: not-allowed; }
 }
-
-/* Dark theme scrollbar */
-
-::-webkit-scrollbar {
-  width: 6px;
+@layer components {
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition duration-200 disabled:opacity-50; }
+  .btn-primary { @apply bg-navy-900 text-white shadow-sm hover:bg-navy-700; }
+  .btn-secondary, .btn-outline { @apply border border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50 hover:border-slate-300; }
+  .btn-danger { @apply bg-red-600 text-white hover:bg-red-700; }
+  .btn-success { @apply bg-emerald-700 text-white hover:bg-emerald-800; }
+  .btn-small { @apply px-3 py-2 text-xs; }
+  .btn-large { @apply px-6 py-3 text-base; }
+  .card, .card-elevated { @apply rounded-2xl border border-slate-200 bg-white p-6; box-shadow: 0 3px 16px -8px #15243d24; }
+  .card-compact { @apply rounded-xl border border-slate-200 bg-slate-50 p-4; }
+  .input-field { @apply w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10; }
+  .input-field-sm { @apply px-3 py-2 text-sm; }
+  .label { @apply mb-2 block text-sm font-medium text-slate-700; }
+  .label-required::after { content: " *"; color: #dc2626; }
+  .badge { @apply inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-medium; }
+  .badge-primary { @apply border-blue-100 bg-blue-50 text-blue-700; }
+  .badge-success { @apply border-emerald-100 bg-emerald-50 text-emerald-700; }
+  .badge-warning { @apply border-amber-200 bg-amber-50 text-amber-800; }
+  .badge-danger { @apply border-red-100 bg-red-50 text-red-700; }
+  .badge-info { @apply border-cyan-100 bg-cyan-50 text-cyan-800; }
+  .table-container { @apply overflow-x-auto rounded-xl; }
+  .table { @apply w-full; }
+  .modal-overlay { @apply fixed inset-0 z-50 flex items-center justify-center bg-navy-950/60 p-4 backdrop-blur-sm; }
+  .modal-content { @apply max-h-[90dvh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl; }
+  .section { @apply mb-8; }
+  .section-title { @apply mb-2 text-2xl font-semibold text-slate-900; }
+  .section-subtitle { @apply text-slate-500; }
+  .gradient-text { @apply text-navy-900; }
 }
-
-::-webkit-scrollbar-track {
-  background: #111827; /* gray-900 */
+.admin-shell, .admin-login { color: #24334b; background: #f5f7fb; font-size: 14px; line-height: 1.6; }
+.admin-shell svg, .admin-login svg { stroke-width: 1.7; flex-shrink: 0; }
+.admin-content { min-width: 0; }
+.admin-content h1 { font-size: clamp(1.6rem, 2.5vw, 2rem); letter-spacing: -.04em; font-weight: 650; line-height: 1.25; }
+.admin-content h2, .admin-content h3 { letter-spacing: -.025em; }
+.admin-content table { width: 100%; font-size: 13px; }
+.admin-content thead, .admin-content thead tr { background: #f8fafc; }
+.admin-content th { color: #65748b; font-size: 10px; font-weight: 650; text-transform: uppercase; letter-spacing: .09em; white-space: nowrap; }
+.admin-content td { border-bottom: 1px solid #edf1f6; }
+.admin-content tbody tr:last-child td { border-bottom: 0; }
+.admin-content tbody tr:hover { background: #f8faff; }
+.admin-content input:not([type="checkbox"]):not([type="range"]):not([type="color"]):not([type="file"]), .admin-content select, .admin-content textarea { min-height: 42px; }
+.admin-content input[type="checkbox"], .admin-content input[type="range"] { accent-color: #315ee7; }
+.admin-content input[type="file"]::file-selector-button { border: 0; border-radius: 6px; padding: 5px 10px; margin-right: 12px; background: #eaf0ff; color: #3152a0; cursor: pointer; }
+.admin-shell :focus-visible, .admin-login :focus-visible { outline: 2px solid #537cec; outline-offset: 3px; }
+.admin-content .min-h-screen { min-height: 65vh; }
+.admin-content .card-elevated { transition: box-shadow .2s ease; }
+.admin-content .card-elevated:hover { box-shadow: 0 6px 24px -12px #15243d30; }
+.admin-content .overflow-x-auto { overscroll-behavior-x: contain; }
+.admin-sidebar { background: #121f35; color: #a7b5ca; }
+.admin-nav-link { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; transition: background .18s, color .18s; }
+.admin-nav-link:hover { color: white; background: #ffffff09; }
+.admin-nav-link.active { color: white; background: #293b57; box-shadow: inset 3px 0 #9db8ff; }
+.admin-nav-link.active svg { color: #b8ccff; }
+.header-popover { position: absolute; right: 0; top: calc(100% + 12px); width: min(300px, calc(100vw - 32px)); border: 1px solid #e2e8f0; border-radius: 12px; background: white; box-shadow: 0 16px 48px -12px #101b3033; padding: 8px; z-index: 40; }
+.header-popover a, .header-popover button { display: flex; gap: 10px; align-items: center; width: 100%; text-align: left; padding: 10px 12px; border-radius: 7px; }
+.header-popover a:hover, .header-popover button:hover { background: #f1f5f9; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+.animate-fade-in, .animate-fade-in-up, .animate-fade-in-down, .animate-slide-in { animation: fadeIn .25s ease-out; }
+@media (max-width: 640px) {
+  .modal-content { padding: 20px; }
+  .admin-content th, .admin-content td { padding: 14px 16px; }
 }
-
-::-webkit-scrollbar-thumb {
-  background: #374151; /* gray-700 */
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #4b5563; /* gray-600 */
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.85);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes loader {
-  0% {
-    width: 0%;
-  }
-  100% {
-    width: 100%;
-  }
+@media (prefers-reduced-motion: reduce) {
+  .admin-shell *, .admin-login * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }

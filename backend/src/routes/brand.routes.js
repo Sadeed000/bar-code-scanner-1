@@ -1,3 +1,5 @@
+const { uploadRoot } = require("../../config/uploads");
+const path = require("path");
 const router = require("express").Router();
 const { requireAuth } = require("../middleware/auth.middleware");
 const {
@@ -18,7 +20,8 @@ const crypto = require("crypto");
 const iconUpload = multer({
   storage: multer.diskStorage({
     destination(req, file, cb) {
-      fs.mkdir("uploads/icons", { recursive: true }, error => cb(error, "uploads/icons"));
+      const folder = path.join(uploadRoot, "icons");
+      fs.mkdir(folder, { recursive: true }, error => cb(error, folder));
     },
     filename(req, file, cb) {
       const extensions = { "image/png": ".png", "image/jpeg": ".jpg", "image/webp": ".webp", "image/gif": ".gif" };

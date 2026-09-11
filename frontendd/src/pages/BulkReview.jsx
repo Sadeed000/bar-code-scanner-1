@@ -1,3 +1,5 @@
+import TablePagination, { TableSearch } from "../component/TableControls";
+import { UploadCloud, Layers } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 import { api } from "../api/client";
@@ -8,6 +10,9 @@ export default function BulkReviewsPage() {
   const [file, setFile] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [summary, setSummary] = useState([]);
+  const [summarySearch, setSummarySearch] = useState("");
+  const [summaryPage, setSummaryPage] = useState(1);
+  const filteredSummary = summary.filter(item => item.reviewCount > 0 && `${item.category} ${item.uploadedBy}`.toLowerCase().includes(summarySearch.toLowerCase()));
   const [loading, setLoading] = useState(false);
   const [overwriteExisting, setOverwriteExisting] = useState(false);
 
@@ -139,44 +144,44 @@ useEffect(() => {
         {/* HEADER */}
 
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">
-            Bulk Reviews Upload
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">
+            <UploadCloud size={25} className="mb-3 text-blue-700" />Bulk Reviews Upload
           </h1>
-          <p className="text-gray-400">
+          <p className="text-slate-500">
             Upload category wise reviews using CSV
           </p>
         </div>
 
         {/* FORM CARD */}
 
-        <div className="bg-gray-800 border border-gray-700 rounded-2xl p-4 mb-8">
+        <div className="bg-white border border-slate-200 rounded-2xl p-4 mb-8">
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             {/* Left: category + file */}
             <div className="flex flex-1 flex-col gap-3 md:flex-row md:items-end">
               <div className="w-full md:w-56">
-                <label className="text-xs md:text-sm text-gray-300 block mb-1.5">
+                <label className="text-xs md:text-sm text-slate-700 block mb-1.5">
                   Select Category
                 </label>
 
      <div className="relative">
 
-  <div
+  <button type="button" aria-expanded={showCategoryDropdown}
     onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-    className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2.5 text-gray-200 text-sm cursor-pointer"
+    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-slate-700 text-sm cursor-pointer"
   >
     {category || "Choose category"}
-  </div>
+  </button>
 
   {showCategoryDropdown && (
 
-    <div className="absolute w-full bg-gray-800 border border-gray-700 rounded-lg mt-1 max-h-60 overflow-y-auto z-50">
+    <div className="absolute w-full bg-white border border-slate-200 rounded-lg mt-1 max-h-60 overflow-y-auto z-50">
 
       <input
         type="text"
         placeholder="Search category..."
         value={categorySearch}
         onChange={(e) => setCategorySearch(e.target.value)}
-        className="w-full px-3 py-2 bg-gray-900 text-white border-b border-gray-700 outline-none"
+        className="w-full px-3 py-2 bg-slate-50 text-slate-900 border-b border-slate-200 outline-none"
       />
 
       {categories
@@ -189,7 +194,7 @@ useEffect(() => {
     setCategory(c);
     setShowCategoryDropdown(false);
   }}
-  className="px-4 py-2 text-gray-200 hover:bg-gray-700 hover:text-white cursor-pointer text-sm transition-colors"
+  className="px-4 py-2 text-slate-700 hover:bg-slate-100 hover:text-slate-900 cursor-pointer text-sm transition-colors"
 >
   {c}
 </div>
@@ -203,7 +208,7 @@ useEffect(() => {
             setCategory(categorySearch);
             setShowCategoryDropdown(false);
           }}
-          className="px-4 py-2 text-blue-400 hover:bg-gray-700 cursor-pointer text-sm"
+          className="px-4 py-2 text-blue-700 hover:bg-slate-100 cursor-pointer text-sm"
         >
           + Create "{categorySearch}"
         </div>
@@ -218,7 +223,7 @@ useEffect(() => {
               </div>
 
               <div className="w-full">
-                <label className="text-xs md:text-sm text-gray-300 block mb-1.5">
+                <label className="text-xs md:text-sm text-slate-700 block mb-1.5">
                   Upload CSV File
                 </label>
 
@@ -227,20 +232,23 @@ useEffect(() => {
                   type="file"
                   accept=".csv"
                   onChange={handleFile}
-                  className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2.5 text-gray-300 text-sm"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-slate-700 text-sm"
                 />
               </div>
             </div>
 
             {/* Middle: overwrite checkbox */}
-            <div className="flex items-center justify-between bg-gray-900 border border-gray-700 rounded-lg px-3 py-2">
-  <span className="text-sm text-gray-300 mr-1">Overwrite reviews</span>
+            <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
+  <span className="text-sm text-slate-700 mr-1">Overwrite reviews</span>
 
   <button
     type="button"
+    role="switch"
+    aria-label="Overwrite reviews"
+    aria-checked={overwriteExisting}
     onClick={() => setOverwriteExisting(!overwriteExisting)}
     className={`relative inline-flex h-5 w-10 items-center rounded-full transition ${
-      overwriteExisting ? "bg-blue-500" : "bg-gray-700"
+      overwriteExisting ? "bg-blue-600" : "bg-slate-300"
     }`}
   >
     <span
@@ -268,9 +276,9 @@ useEffect(() => {
 
         {reviews.length > 0 && (
 
-          <div className="bg-gray-800 border border-gray-700 rounded-2xl overflow-hidden mb-8">
+          <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden mb-8">
 
-            <div className="p-4 border-b border-gray-700 text-white font-semibold">
+            <div className="p-4 border-b border-slate-200 text-slate-900 font-semibold">
               CSV Preview ({reviews.length} reviews)
             </div>
 
@@ -278,7 +286,7 @@ useEffect(() => {
 
               <table className="w-full text-sm">
 
-                <thead className="bg-gray-700 text-gray-300">
+                <thead className="bg-slate-100 text-slate-700">
                   <tr>
                     <th className="px-4 py-3 text-left">#</th>
                     <th className="px-4 py-3 text-left">Review</th>
@@ -290,13 +298,13 @@ useEffect(() => {
                   {reviews.map((r, i) => (
                     <tr
                       key={i}
-                      className="border-b border-gray-700 hover:bg-gray-700/40"
+                      className="border-b border-slate-200 hover:bg-slate-100"
                     >
-                      <td className="px-4 py-3 text-gray-400">
+                      <td className="px-4 py-3 text-slate-500">
                         {i + 1}
                       </td>
 
-                      <td className="px-4 py-3 text-gray-200">
+                      <td className="px-4 py-3 text-slate-700">
                         {r}
                       </td>
                     </tr>
@@ -313,18 +321,19 @@ useEffect(() => {
         )}
 
         {/* UPLOADED REVIEW SUMMARY TABLE */}
+        <TableSearch value={summarySearch} onChange={value => { setSummarySearch(value); setSummaryPage(1); }} placeholder="Search categories or uploaders…" />
 
-        <div className="bg-gray-800 border border-gray-700 rounded-2xl overflow-hidden">
+        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
 
-          <div className="p-4 border-b border-gray-700 text-white font-semibold">
-            Uploaded Review Categories
+          <div className="p-4 border-b border-slate-200 text-slate-900 font-semibold">
+            <span className="flex items-center gap-2"><Layers size={18} className="text-slate-400" />Uploaded Review Categories</span>
           </div>
 
           <div className="overflow-x-auto">
 
             <table className="w-full text-sm">
 
-              <thead className="bg-gray-700 text-gray-300">
+              <thead className="bg-slate-100 text-slate-700">
                 <tr>
                   <th className="px-4 py-3 text-left">Category</th>
                   <th className="px-4 py-3 text-left">Review Count</th>
@@ -334,38 +343,38 @@ useEffect(() => {
               </thead>
 
               <tbody>
-{summary.filter(item => item.reviewCount > 0).length === 0 && (
+{filteredSummary.length === 0 && (
   <tr>
     <td
       colSpan="4"
-      className="text-center py-6 text-gray-400"
+      className="text-center py-6 text-slate-500"
     >
-      No reviews uploaded yet
+      {summarySearch ? "No categories match your search" : "No reviews uploaded yet"}
     </td>
   </tr>
 )}
 
-{summary
-  .filter(item => item.reviewCount > 0)
+{filteredSummary
+  .slice((summaryPage - 1) * 10, summaryPage * 10)
   .map((item) => (
     <tr
       key={item._id}
-      className="border-b border-gray-700 hover:bg-gray-700/40"
+      className="border-b border-slate-200 hover:bg-slate-100"
     >
 
-      <td className="px-4 py-3 text-gray-200 capitalize">
+      <td className="px-4 py-3 text-slate-700 capitalize">
         {item.category}
       </td>
 
-      <td className="px-4 py-3 text-gray-300">
+      <td className="px-4 py-3 text-slate-700">
         {item.reviewCount}
       </td>
 
-      <td className="px-4 py-3 text-gray-300">
+      <td className="px-4 py-3 text-slate-700">
         {item.uploadedBy}
       </td>
 
-      <td className="px-4 py-3 text-gray-400">
+      <td className="px-4 py-3 text-slate-500">
         {new Date(item.createdAt).toLocaleDateString()}
       </td>
 
@@ -377,7 +386,7 @@ useEffect(() => {
             </table>
 
           </div>
-
+          <TablePagination page={summaryPage} total={filteredSummary.length} onChange={setSummaryPage} />
         </div>
 
       </div>

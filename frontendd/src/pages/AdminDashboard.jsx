@@ -1,10 +1,10 @@
+import Modal from "../component/Modal";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, setAuthToken } from "../api/client";
 import { toast } from "react-hot-toast";
 import BrandForm from "../component/BrandForm";
-import { Tag, Users, Smartphone, CheckCircle } from "lucide-react";
-import { IndianRupee } from "lucide-react";
+import { Tag, Users, Smartphone, CheckCircle, IndianRupee, Plus, ArrowRight } from "lucide-react";
 
 const API_BASE_URL = api.defaults.baseURL.replace("/api", "");
 
@@ -157,10 +157,10 @@ const [showScanner, setShowScanner] = useState(false);  // ← Add this line
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <div className="w-12 h-12 rounded-full border-4 border-slate-200 border-t-blue-500 animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-500">Loading dashboard...</p>
         </div>
       </div>
     );
@@ -169,213 +169,214 @@ const [showScanner, setShowScanner] = useState(false);  // ← Add this line
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-            {/* HEADER */}
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
-              <p className="text-gray-400">Welcome to your admin panel</p>
-            </div>
+        {/* PAGE HEADER */}
+        <div className="mb-8 animate-fade-in">
+          <h1 className="text-4xl font-bold text-slate-900 mb-2">Dashboard</h1>
+          <p className="text-slate-500">Welcome back! Here's an overview of your system.</p>
+        </div>
 
-
-{/* STATS CARDS */}
-<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-
-  {/* Total Brands */}
-  <div className="relative group bg-gradient-to-br from-blue-500/90 to-blue-600/90 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-white shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
-    
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="text-blue-100 text-sm">Total Brands</p>
-        <h2 className="text-3xl font-bold mt-1">{stats.totalBrands}</h2>
-        <p className="text-xs text-blue-200 mt-1">Registered brands</p>
-      </div>
-
-      <div className="bg-white/20 p-3 rounded-xl">
-        <Tag size={28}/>
-      </div>
-    </div>
-
-  </div>
-
-
-  {/* Total Sellers */}
-  <div className="relative group bg-gradient-to-br from-green-500/90 to-green-600/90 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-white shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="text-green-100 text-sm">Total Sellers</p>
-        <h2 className="text-3xl font-bold mt-1">{stats.totalSellers}</h2>
-        <p className="text-xs text-green-200 mt-1">All sellers</p>
-      </div>
-
-      <div className="bg-white/20 p-3 rounded-xl">
-        <Users size={28}/>
-      </div>
-    </div>
-
-  </div>
-
-
-  {/* QR Scans */}
-  <div className="relative group bg-gradient-to-br from-purple-500/90 to-purple-600/90 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-white shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="text-purple-100 text-sm">QR Scans</p>
-        <h2 className="text-3xl font-bold mt-1">{stats.qrScans}</h2>
-        <p className="text-xs text-purple-200 mt-1">Total scans</p>
-      </div>
-
-      <div className="bg-white/20 p-3 rounded-xl">
-        <Smartphone size={28}/>
-      </div>
-    </div>
-
-  </div>
-
-
-  {/* Active Sellers */}
-  <div className="relative group bg-gradient-to-br from-orange-500/90 to-orange-600/90 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-white shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="text-orange-100 text-sm">Active Sellers</p>
-        <h2 className="text-3xl font-bold mt-1">{stats.activeSellers}</h2>
-        <p className="text-xs text-orange-200 mt-1">Currently active</p>
-      </div>
-
-      <div className="bg-white/20 p-3 rounded-xl">
-        <CheckCircle size={28}/>
-      </div>
-    </div>
-
-  </div>
-
-</div>
-{/* Total Payment */}
-{/* Total Payment */}
-
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-
-  <div className="relative bg-gradient-to-br from-emerald-500/90 to-emerald-600/90 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-white shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-
-    <div className="flex items-center justify-between">
-
-      <div>
-        <p className="text-emerald-100 text-sm">Total Payment</p>
-
-        <h2 className="text-3xl font-bold mt-1">
-          ₹{stats.totalAmount || 0}
-        </h2>
-
-        <p className="text-xs text-emerald-200 mt-1">
-          Revenue generated
-        </p>
-      </div>
-
-      <div className="bg-white/20 p-3 rounded-xl">
-        <IndianRupee size={28} />
-      </div>
-
-    </div>
-
-  </div>
-
-</div>
-
-            
-
-            {/* CREATE BRAND BUTTON */}
-            <div className="mb-6">
-              <button
-                onClick={openCreateModal}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition shadow-lg hover:shadow-xl cursor-pointer"
-              >
-                + Create Brand
-              </button>
-            </div>
-
-
-            {/* RECENT BRANDS */}
-            <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden shadow-lg">
-              <div className="p-6 border-b border-gray-700">
-                <h2 className="text-xl font-bold text-white">Recent Brands</h2>
+        {/* STATS GRID */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8 animate-fade-in">
+          {/* Total Brands Card */}
+          <div className="card-elevated group cursor-default">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <p className="text-slate-500 text-sm font-medium mb-1">Total Brands</p>
+                <h2 className="text-3xl font-bold text-slate-900 mb-1">{stats.totalBrands}</h2>
+                <p className="text-xs text-gray-500">Registered brands</p>
               </div>
-
-              {brands.length === 0 ? (
-                <div className="p-8 text-center text-gray-400">
-                  <p className="text-lg">No brands created yet</p>
-                  <p className="text-sm mt-2">Click "Create Brand" to get started</p>
-                </div>
-              ) : (
-                <div className="divide-y divide-gray-700">
-                  {brands.slice(0, 5).map((brand) => (
-                    <button
-                      key={brand._id}
-                      onClick={() => nav(`/admin/brands/${brand._id}`)}
-                      className="w-full text-left p-6 hover:bg-gray-700/50 transition flex items-center justify-between group cursor-pointer"
-                    >
-                      <div className="flex items-center space-x-4">
-                        {brand.logoUrl && (
-                          console.log("hey00", `${brandLogo + brand.logoUrl}`) ||
-                          <img
-                            src={brandLogo + brand.logoUrl}
-                            alt={brand.name}
-                            className="w-12 h-12 rounded-lg object-cover"
-                          />
-                        )}
-                        <div>
-                          <p className="font-semibold text-white group-hover:text-blue-400 transition">
-                            {brand.name}
-                          </p>
-                          <p className="text-xs text-gray-400">
-                            Public URL: /p/{brand.slug}
-                          </p>
-                        </div>
-                      </div>
-                      <span className="text-gray-500 group-hover:text-gray-300">→</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {brands.length > 5 && (
-                <div className="p-6 border-t border-gray-700 text-center">
-                  <button
-                    onClick={() => nav("/admin/brands")}
-                    className="text-blue-400 hover:text-blue-300 font-medium transition cursor-pointer"
-                  >
-                    View All Brands →
-                  </button>
-                </div>
-              )}
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/20 flex items-center justify-center">
+                <Tag className="w-6 h-6 text-blue-700" />
+              </div>
             </div>
           </div>
 
+          {/* Total Sellers Card */}
+          <div className="card-elevated group cursor-default">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <p className="text-slate-500 text-sm font-medium mb-1">Total Sellers</p>
+                <h2 className="text-3xl font-bold text-slate-900 mb-1">{stats.totalSellers}</h2>
+                <p className="text-xs text-gray-500">All sellers</p>
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500/20 to-green-600/20 flex items-center justify-center">
+                <Users className="w-6 h-6 text-green-700" />
+              </div>
+            </div>
+          </div>
+
+          {/* QR Scans Card */}
+          <div className="card-elevated group cursor-default">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <p className="text-slate-500 text-sm font-medium mb-1">QR Scans</p>
+                <h2 className="text-3xl font-bold text-slate-900 mb-1">{stats.qrScans}</h2>
+                <p className="text-xs text-gray-500">Total scans</p>
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-600/20 flex items-center justify-center">
+                <Smartphone className="w-6 h-6 text-purple-700" />
+              </div>
+            </div>
+          </div>
+
+          {/* Active Sellers Card */}
+          <div className="card-elevated group cursor-default">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <p className="text-slate-500 text-sm font-medium mb-1">Active Sellers</p>
+                <h2 className="text-3xl font-bold text-slate-900 mb-1">{stats.activeSellers}</h2>
+                <p className="text-xs text-gray-500">Currently active</p>
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/20 to-orange-600/20 flex items-center justify-center">
+                <CheckCircle className="w-6 h-6 text-orange-700" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* REVENUE CARD */}
+        <div className="mb-8 animate-fade-in">
+          <div className="card-elevated">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <p className="text-slate-500 text-sm font-medium mb-1">Total Revenue</p>
+                <h2 className="text-4xl font-bold text-slate-900 mb-1">
+                  ₹{(stats.totalAmount || 0).toLocaleString('en-IN')}
+                </h2>
+                <p className="text-xs text-gray-500">Overall revenue generated</p>
+              </div>
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 flex items-center justify-center">
+                <IndianRupee className="w-7 h-7 text-emerald-700" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ACTIONS ROW */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-8 animate-fade-in">
+          <button
+            onClick={openCreateModal}
+            className="btn btn-primary flex-1"
+          >
+            <Plus className="w-5 h-5" />
+            <span>Create Brand</span>
+          </button>
+          <button
+            onClick={() => nav("/admin/brands")}
+            className="btn btn-secondary flex-1"
+          >
+            <span>View All Brands</span>
+            <ArrowRight className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* RECENT BRANDS SECTION */}
+        <div className="card-elevated animate-fade-in">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-slate-900">Recent Brands</h2>
+            {brands.length > 5 && (
+              <button
+                onClick={() => nav("/admin/brands")}
+                className="text-blue-700 hover:text-blue-700 text-sm font-medium transition flex items-center gap-1"
+              >
+                View all <ArrowRight className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+
+          {brands.length === 0 ? (
+            <div className="py-12 text-center">
+              <Tag className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+              <p className="text-slate-500 font-medium mb-2">No brands yet</p>
+              <p className="text-gray-500 text-sm mb-6">Create your first brand to get started</p>
+              <button
+                onClick={openCreateModal}
+                className="btn btn-primary inline-flex"
+              >
+                <Plus className="w-4 h-4" />
+                Create Brand
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-2 -mx-6 -mb-6">
+              {brands.slice(0, 5).map((brand, idx) => (
+                <button
+                  key={brand._id}
+                  onClick={() => nav(`/admin/brands/${brand._id}`)}
+                  className={`w-full text-left p-4 hover:bg-slate-100 transition-all duration-200 group flex items-center justify-between ${
+                    idx !== brands.length - 1 ? 'border-b border-gray-700/30' : ''
+                  }`}
+                >
+                  <div className="flex items-center gap-4 flex-1">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-600/20 flex items-center justify-center overflow-hidden">
+                      {brand.logoUrl ? (
+                        <img
+                          src={brandLogo + brand.logoUrl}
+                          alt={brand.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <Tag className="w-5 h-5 text-gray-500" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-slate-900 group-hover:text-blue-400 transition">
+                        {brand.name}
+                      </p>
+                      <p className="text-xs text-gray-500">/p/{brand.slug}</p>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-gray-600 group-hover:text-blue-400 transition transform group-hover:translate-x-1" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* CREATE BRAND MODAL */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50 p-4">
-          <div className="bg-gray-800 w-full max-w-4xl rounded-2xl p-6 max-h-[90vh] overflow-y-auto">
-            <div className="text-2xl font-bold mb-6 text-white">Create Brand</div>
+        <Modal onClose={closeModel} label="Create brand">
+          <div className="modal-content animate-fade-in-up max-w-2xl">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between mb-6 pb-6 border-b border-slate-200">
+              <div>
+                <h2 className="text-2xl font-bold text-slate-900">Create Brand</h2>
+                <p className="text-slate-500 text-sm mt-1">Set up a new brand profile</p>
+              </div>
+              <button aria-label="Close dialog"
+                onClick={closeModel}
+                className="text-slate-500 hover:text-slate-900 transition p-1"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
 
-            <BrandForm form={form} setForm={setForm} />
+            {/* Form Content */}
+            <div className="mb-6 max-h-[calc(90vh-200px)] overflow-y-auto">
+              <BrandForm form={form} setForm={setForm} />
+            </div>
 
-            <div className="flex justify-end gap-3 mt-6">
+            {/* Modal Footer */}
+            <div className="flex justify-end gap-3 pt-6 border-t border-slate-200">
               <button
                 onClick={closeModel}
-                className="border border-gray-600 px-4 py-2 rounded-lg text-gray-300 hover:bg-gray-700 transition cursor-pointer"
+                className="btn btn-secondary"
               >
                 Cancel
               </button>
-
               <button
                 onClick={createBrand}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition cursor-pointer"
+                className="btn btn-primary"
               >
                 Create Brand
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );
 }
+
+import { X } from "lucide-react";

@@ -1,3 +1,4 @@
+import { QrCode, ArrowRight, ShieldCheck, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, setAuthToken } from "../api/client";
@@ -10,11 +11,14 @@ export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
 
 async function onSubmit(e) {
   e.preventDefault();
   setErr("");
+  setSubmitting(true);
 
   try {
     const res = await api.post("/auth/login", { email, password });
@@ -22,7 +26,7 @@ async function onSubmit(e) {
     const token = res?.data?.data?.token;
     const user = res?.data?.data?.user;
 
-    console.log("Login Response:", res.data);
+
 
     if (!token || !user) {
       throw new Error("Invalid response from server");
@@ -49,82 +53,30 @@ async function onSubmit(e) {
     setErr("Invalid login");
     toast.error(err?.response?.data?.message ||
       (!err.response ? "Cannot reach the server. Check your connection and try again." : "Login failed"));
-  }
+  } finally { setSubmitting(false); }
 }
   return (
-    <div className="min-h-screen bg-gradient-to-br from-navy-950 via-navy-900 to-navy-950 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Decorative background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl"></div>
-      </div>
-
-      <div className="relative z-10 w-full max-w-md">
-        {/* Logo & Title */}
-        <div className="text-center mb-8">
-          <div className="text-4xl font-bold gradient-text mb-2">Sparrownix</div>
-          <p className="text-gray-400">Admin Dashboard</p>
+    <div className="admin-login min-h-screen lg:grid lg:grid-cols-2">
+      <aside className="relative hidden flex-col justify-between overflow-hidden bg-navy-950 p-14 text-white lg:flex">
+        <div className="relative z-10 flex items-center gap-3"><QrCode size={32} /><span className="text-2xl font-semibold tracking-tight">Sparrownix.</span></div>
+        <div className="relative z-10 max-w-md py-20"><p className="mb-5 text-xs font-medium uppercase tracking-[.22em] text-blue-200">Your brand. More connected.</p><h1 className="text-5xl font-semibold leading-[1.15] tracking-tight">A thoughtful space<br />to manage it all.</h1><p className="mt-6 text-base leading-relaxed text-slate-400">Your brands, customer connections, and insights. Together in one beautifully organized workspace.</p><div className="mt-12 grid grid-cols-3 gap-4 border-t border-white/15 pt-6 text-xs text-slate-300"><span>Brand management</span><span>QR analytics</span><span>Customer connections</span></div></div>
+        <p className="relative z-10 text-xs text-slate-500">Sparrownix Management Suite</p>
+        <div aria-hidden="true" className="absolute -bottom-72 -right-48 h-[600px] w-[600px] rounded-full border border-white/5" /><div aria-hidden="true" className="absolute -bottom-48 -right-24 h-[400px] w-[400px] rounded-full border border-white/5" />
+      </aside>
+      <main className="flex min-h-screen items-center justify-center p-6 sm:p-12">
+        <div className="w-full max-w-sm animate-fade-in">
+          <div className="mb-10 flex items-center gap-2 text-lg font-semibold text-navy-900 lg:hidden"><QrCode size={27} />Sparrownix.</div>
+          <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200 bg-white text-navy-900 shadow-sm"><ShieldCheck size={25} /></div>
+          <h2 className="text-3xl font-semibold tracking-tight text-navy-950">Welcome back</h2><p className="mt-2 mb-8 text-sm text-slate-500">Sign in to your management workspace.</p>
+          <form onSubmit={onSubmit} className="space-y-5">
+            <div><label htmlFor="login-email" className="label">Email address</label><input id="login-email" type="email" autoComplete="username" className="input-field" placeholder="you@company.com" value={email} onChange={e => setEmail(e.target.value)} required /></div>
+            <div><label htmlFor="login-password" className="label">Password</label><div className="relative"><input id="login-password" type={showPassword ? "text" : "password"} autoComplete="current-password" className="input-field pr-12" placeholder="Enter your password" value={password} onChange={e => setPassword(e.target.value)} required /><button type="button" aria-label={showPassword ? "Hide password" : "Show password"} aria-pressed={showPassword} onClick={() => setShowPassword(!showPassword)} className="absolute right-1 top-1 rounded-lg p-2.5 text-slate-400 hover:text-slate-700">{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button></div></div>
+            {err && <p role="alert" className="rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">{err}</p>}
+            <button type="submit" disabled={submitting} className="btn btn-primary w-full py-3">{submitting ? "Signing in…" : "Sign in"}<ArrowRight size={17} /></button>
+          </form>
+          <p className="mt-8 border-t border-slate-200 pt-6 text-center text-xs text-slate-400">Sparrownix · Management Suite</p>
         </div>
-
-        {/* Login Card */}
-        <form onSubmit={onSubmit} className="card-elevated">
-          <h1 className="text-2xl font-bold text-white mb-1">Sign In</h1>
-          <p className="text-gray-400 text-sm mb-8">Enter your credentials to access the admin panel</p>
-
-          {/* Email Field */}
-          <div className="mb-6">
-            <label className="label label-required">Email Address</label>
-            <input
-              type="email"
-              className="input-field"
-              placeholder="admin@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-
-          {/* Password Field */}
-          <div className="mb-6">
-            <label className="label label-required">Password</label>
-            <input
-              type="password"
-              className="input-field"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-
-          {/* Error Message */}
-          {err && (
-            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
-              <p className="text-red-400 text-sm font-medium">{err}</p>
-            </div>
-          )}
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className="btn btn-primary w-full py-3 font-semibold text-lg mb-4"
-          >
-            Sign In
-          </button>
-
-          {/* Footer */}
-          <div className="text-center text-gray-400 text-sm">
-            <p>Demo credentials available on request</p>
-          </div>
-        </form>
-
-        {/* Security Note */}
-        <div className="mt-6 p-4 bg-gray-800/50 border border-gray-700/50 rounded-xl">
-          <p className="text-gray-400 text-xs">
-            🔐 This is a secure admin panel. Never share your credentials with anyone.
-          </p>
-        </div>
-      </div>
+      </main>
     </div>
   );
 }

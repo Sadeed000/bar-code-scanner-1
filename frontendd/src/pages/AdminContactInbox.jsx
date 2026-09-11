@@ -122,10 +122,10 @@ export default function AdminContactInbox() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-900">
+      <div className="flex items-center justify-center min-h-screen bg-slate-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
-          <p className="mt-4 text-gray-300">Loading contact inbox...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-200 mx-auto"></div>
+          <p className="mt-4 text-slate-700">Loading contact inbox...</p>
         </div>
       </div>
     );
@@ -137,15 +137,15 @@ export default function AdminContactInbox() {
         {/* HEADER */}
         <div className="mb-6 md:mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-white mb-1">Contact Inbox</h1>
-            <p className="text-gray-400 text-sm md:text-base">
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-1">Contact Inbox</h1>
+            <p className="text-slate-500 text-sm md:text-base">
               Manage owner contacts from your brand profiles
             </p>
           </div>
         </div>
 
         {/* FILTER BAR */}
-        <div className="mb-4 bg-gray-800 border border-gray-700 rounded-xl px-4 py-3">
+        <div className="mb-4 bg-white border border-slate-200 rounded-xl px-4 py-3">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             {/* Left: search + timeframe */}
             <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
@@ -154,13 +154,13 @@ export default function AdminContactInbox() {
                 placeholder="Search by owner, phone or brand..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2.5 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
               />
 
               <select
                 value={timeframe}
                 onChange={(e) => setTimeframe(e.target.value)}
-                className="w-full sm:w-44 px-3 py-2.5 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500 transition"
+                className="w-full sm:w-44 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 text-sm focus:outline-none focus:border-blue-500 transition"
               >
                 <option value="all">All time</option>
                 <option value="today">Today</option>
@@ -172,16 +172,16 @@ export default function AdminContactInbox() {
 
             {/* Right: info text + page size + clear */}
             <div className="flex flex-wrap items-center justify-between gap-3 md:justify-end md:pl-4">
-              <div className="text-xs sm:text-sm text-gray-400">
-                Showing <span className="text-gray-200 font-medium">{filtered.length}</span> of{" "}
-                <span className="text-gray-200 font-medium">{total}</span> contacts
+              <div className="text-xs sm:text-sm text-slate-500">
+                Showing <span className="text-slate-700 font-medium">{filtered.length}</span> of{" "}
+                <span className="text-slate-700 font-medium">{total}</span> contacts
               </div>
 
               <div className="flex items-center gap-2">
                 <select
                   value={limit}
                   onChange={(e) => setLimit(Number(e.target.value))}
-                  className="px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-xs sm:text-sm focus:outline-none focus:border-blue-500 transition"
+                  className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 text-xs sm:text-sm focus:outline-none focus:border-blue-500 transition"
                 >
                   <option value={5}>5 / page</option>
                   <option value={10}>10 / page</option>
@@ -194,7 +194,7 @@ export default function AdminContactInbox() {
                     setTimeframe("all");
                     setPage(1);
                   }}
-                  className="px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-gray-200 text-xs sm:text-sm hover:border-blue-500 transition cursor-pointer"
+                  className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 text-xs sm:text-sm hover:border-blue-500 transition cursor-pointer"
                 >
                   Clear
                 </button>
@@ -204,9 +204,9 @@ export default function AdminContactInbox() {
         </div>
 
         {/* TABLE */}
-       <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
+       <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
   {filtered.length === 0 ? (
-    <div className="p-10 text-center text-gray-400">
+    <div className="p-10 text-center text-slate-500">
       No contacts found for the selected filters.
     </div>
   ) : (
@@ -214,7 +214,7 @@ export default function AdminContactInbox() {
       <table className="min-w-[640px] w-full text-center">
         
         {/* TABLE HEADER */}
-        <thead className="bg-gray-900/70 text-xs text-gray-400">
+        <thead className="bg-slate-50 text-xs text-slate-500">
           <tr>
             <th className="px-5 py-3 font-semibold">Name</th>
             <th className="px-5 py-3 font-semibold">Phone</th>
@@ -225,20 +225,20 @@ export default function AdminContactInbox() {
         </thead>
 
         {/* TABLE BODY */}
-        <tbody className="divide-y divide-gray-700">
+        <tbody className="divide-y divide-slate-200">
           {filtered.map((b) => (
-            <tr key={b._id} className="hover:bg-gray-900/50 transition">
+            <tr key={b._id} className="hover:bg-slate-100 transition">
 
               {/* NAME */}
               <td className="px-5 py-4">
-                <div className="text-sm text-white truncate">
+                <div className="text-sm text-slate-900 truncate">
                   {b.ownerName || "—"}
                 </div>
               </td>
 
               {/* PHONE */}
               <td className="px-5 py-4">
-                <div className="text-xs text-gray-300">
+                <div className="text-xs text-slate-700">
                   {b.contactNumber || b.ownerPhone || "—"}
                 </div>
               </td>
@@ -248,12 +248,12 @@ export default function AdminContactInbox() {
   <div className="flex flex-col items-center gap-1">
 
     {/* Brand Name */}
-    <span className="text-sm font-semibold text-white">
+    <span className="text-sm font-semibold text-slate-900">
       {b.name}
     </span>
 
     {/* Slug Chip */}
-    <span className="px-2 py-0.5 text-xs rounded-full bg-gray-900 border border-gray-700 text-gray-400">
+    <span className="px-2 py-0.5 text-xs rounded-full bg-slate-50 border border-slate-200 text-slate-500">
       /{b.slug}
     </span>
 
@@ -262,14 +262,14 @@ export default function AdminContactInbox() {
 
               {/* DATE */}
               <td className="px-5 py-4">
-                <div className="text-xs text-gray-300">
+                <div className="text-xs text-slate-700">
                   {formatDateTime(b.createdAt)}
                 </div>
               </td>
 
               {/* AMOUNT */}
               <td className="px-5 py-4">
-                <span className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-300 text-xs font-medium">
+                <span className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-700 text-xs font-medium">
                   ₹{b.amount || 0}
                 </span>
               </td>
@@ -284,12 +284,12 @@ export default function AdminContactInbox() {
 
   {/* PAGINATION */}
   {totalPages > 1 && (
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-5 py-3 bg-gray-900/50 border-t border-gray-700">
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-5 py-3 bg-slate-50 border-t border-slate-200">
       
-      <div className="text-sm text-gray-400">
+      <div className="text-sm text-slate-500">
         Page{" "}
-        <span className="text-gray-200 font-medium">{page}</span> of{" "}
-        <span className="text-gray-200 font-medium">{totalPages}</span>
+        <span className="text-slate-700 font-medium">{page}</span> of{" "}
+        <span className="text-slate-700 font-medium">{totalPages}</span>
       </div>
 
       <div className="flex items-center gap-2">
@@ -297,7 +297,7 @@ export default function AdminContactInbox() {
         <button
           onClick={() => setPage(1)}
           disabled={page <= 1}
-          className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-200 disabled:opacity-40 hover:border-blue-500 transition cursor-pointer"
+          className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-700 disabled:opacity-40 hover:border-blue-500 transition cursor-pointer"
         >
           First
         </button>
@@ -305,7 +305,7 @@ export default function AdminContactInbox() {
         <button
           onClick={() => setPage((p) => Math.max(1, p - 1))}
           disabled={page <= 1}
-          className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-200 disabled:opacity-40 hover:border-blue-500 transition cursor-pointer"
+          className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-700 disabled:opacity-40 hover:border-blue-500 transition cursor-pointer"
         >
           Prev
         </button>
@@ -313,7 +313,7 @@ export default function AdminContactInbox() {
         <button
           onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
           disabled={page >= totalPages}
-          className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-200 disabled:opacity-40 hover:border-blue-500 transition cursor-pointer"
+          className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-700 disabled:opacity-40 hover:border-blue-500 transition cursor-pointer"
         >
           Next
         </button>
@@ -321,7 +321,7 @@ export default function AdminContactInbox() {
         <button
           onClick={() => setPage(totalPages)}
           disabled={page >= totalPages}
-          className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-200 disabled:opacity-40 hover:border-blue-500 transition cursor-pointer"
+          className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-700 disabled:opacity-40 hover:border-blue-500 transition cursor-pointer"
         >
           Last
         </button>

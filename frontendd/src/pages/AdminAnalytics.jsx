@@ -1,3 +1,5 @@
+import TablePagination, { TableSearch } from "../component/TableControls";
+import { Tags, ScanLine } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, setAuthToken } from "../api/client";
@@ -6,6 +8,9 @@ import { toast } from "react-hot-toast";
 export default function AdminAnalytics() {
   const nav = useNavigate();
   const [data, setData] = useState([]);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const filtered = data.filter(b => `${b.name || ""} ${b.slug || ""} ${b.createdBy?.name || ""}`.toLowerCase().includes(search.toLowerCase()));
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -58,7 +63,7 @@ export default function AdminAnalytics() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-900">
+    <div className="flex min-h-screen bg-slate-50">
     
       {/* MAIN CONTENT */}
 <div className="p-4 md:p-8 w-full">
@@ -66,10 +71,10 @@ export default function AdminAnalytics() {
 
     {/* HEADER */}
     <div className="mb-6 md:mb-8">
-      <h1 className="text-xl md:text-3xl font-bold text-white mb-1 md:mb-2">
+      <h1 className="text-xl md:text-3xl font-bold text-slate-900 mb-1 md:mb-2">
         Brand QR Analytics
       </h1>
-      <p className="text-gray-400 text-sm md:text-base">
+      <p className="text-slate-500 text-sm md:text-base">
         Scan counts per brand
       </p>
     </div>
@@ -77,31 +82,32 @@ export default function AdminAnalytics() {
     {/* SUMMARY CARDS */}
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
 
-      <div className="bg-gray-800 border border-gray-700 rounded-xl p-4 md:p-6">
-        <p className="text-gray-400 text-xs md:text-sm">Total Brands</p>
-        <h2 className="text-2xl md:text-3xl font-bold text-white mt-1 md:mt-2">
+      <div className="bg-white border border-slate-200 rounded-xl p-4 md:p-6">
+        <Tags size={22} className="mb-4 text-blue-700" /><p className="text-slate-500 text-xs md:text-sm">Total Brands</p>
+        <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mt-1 md:mt-2">
           {data.length}
         </h2>
       </div>
 
-      <div className="bg-gray-800 border border-gray-700 rounded-xl p-4 md:p-6">
-        <p className="text-gray-400 text-xs md:text-sm">Total QR Scans</p>
-        <h2 className="text-2xl md:text-3xl font-bold text-white mt-1 md:mt-2">
+      <div className="bg-white border border-slate-200 rounded-xl p-4 md:p-6">
+        <ScanLine size={22} className="mb-4 text-emerald-700" /><p className="text-slate-500 text-xs md:text-sm">Total QR Scans</p>
+        <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mt-1 md:mt-2">
           {data.reduce((a, b) => a + (b.scanCount || 0), 0)}
         </h2>
       </div>
 
     </div>
 
+    <TableSearch value={search} onChange={value => { setSearch(value); setPage(1); }} placeholder="Search brands, slugs, or creators…" />
     {/* TABLE */}
-    <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
+    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
 
       {/* Horizontal scroll for mobile */}
       <div className="overflow-x-auto">
 
         <table className="min-w-[650px] w-full text-left">
 
-          <thead className="bg-gray-700 text-gray-200 text-xs md:text-sm uppercase tracking-wider">
+          <thead className="bg-slate-100 text-slate-700 text-xs md:text-sm uppercase tracking-wider">
             <tr>
               <th className="px-4 md:px-6 py-3 md:py-4">Brand</th>
               <th className="px-4 md:px-6 py-3 md:py-4">Slug</th>
@@ -111,11 +117,12 @@ export default function AdminAnalytics() {
           </thead>
 
           <tbody>
+            {filtered.length === 0 && <tr><td colSpan={4} className="py-12 text-center text-slate-500">No brands match your search.</td></tr>}
 
-            {data.map((b) => (
+            {filtered.slice((page - 1) * 10, page * 10).map((b) => (
               <tr
                 key={b._id}
-                className="border-b border-gray-700 hover:bg-gray-700/40 transition"
+                className="border-b border-slate-200 hover:bg-slate-100 transition"
               >
 
                 {/* BRAND */}
@@ -126,7 +133,7 @@ export default function AdminAnalytics() {
                       {b.name?.charAt(0).toUpperCase()}
                     </div>
 
-                    <span className="text-white text-sm md:text-base">
+                    <span className="text-slate-900 text-sm md:text-base">
                       {b.name}
                     </span>
 
@@ -134,20 +141,20 @@ export default function AdminAnalytics() {
                 </td>
 
                 {/* SLUG */}
-                <td className="px-4 md:px-6 py-3 md:py-4 text-gray-300 text-xs md:text-sm">
+                <td className="px-4 md:px-6 py-3 md:py-4 text-slate-700 text-xs md:text-sm">
                   {b.slug}
                 </td>
 
                 {/* CREATED BY */}
                 <td className="px-4 md:px-6 py-3 md:py-4">
-                  <span className="inline-flex items-center px-2 md:px-3 py-1 text-xs font-medium rounded-full bg-indigo-500/20 text-indigo-300">
+                  <span className="inline-flex items-center px-2 md:px-3 py-1 text-xs font-medium rounded-full bg-indigo-500/20 text-indigo-700">
                     {b.createdBy?.name || "N/A"}
                   </span>
                 </td>
 
                 {/* SCANS */}
                 <td className="px-4 md:px-6 py-3 md:py-4 text-right">
-                  <span className="px-2 md:px-3 py-1 rounded-full bg-blue-600/20 text-blue-400 text-xs md:text-sm font-medium">
+                  <span className="px-2 md:px-3 py-1 rounded-full bg-blue-600/20 text-blue-700 text-xs md:text-sm font-medium">
                     {b.scanCount || 0}
                   </span>
                 </td>
@@ -160,7 +167,7 @@ export default function AdminAnalytics() {
         </table>
 
       </div>
-
+      <TablePagination page={page} total={filtered.length} onChange={setPage} />
     </div>
 
   </div>

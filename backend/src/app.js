@@ -1,3 +1,5 @@
+require("dotenv").config();
+const { uploadRoot } = require("../config/uploads");
 // require("dotenv").config();
 // const express = require("express");
 // const cors = require("cors");
@@ -22,7 +24,7 @@
 //   app.use(express.json({ limit: "1mb" }));
   
 //   // Serve uploaded files as static assets
-//   app.use("/uploads", express.static("uploads"));
+//   app.use("/uploads", express.static(uploadRoot));
 
 //   app.get("/health", (req, res) => res.json({ ok: true }));
 
@@ -69,7 +71,8 @@ app.use(
   app.use(express.json({ limit: "1mb" }));
 
   // Serve uploaded files
-  app.use("/uploads", express.static("uploads"));
+  app.use("/uploads", express.static(uploadRoot));
+  app.use("/uploads", (req, res) => res.status(404).json({ message: "Uploaded file not found" }));
 
   // ===============================
   // 🔥 React Build Path

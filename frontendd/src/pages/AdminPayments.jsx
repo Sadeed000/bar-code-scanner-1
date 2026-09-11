@@ -1,3 +1,4 @@
+import TablePagination, { TableSearch } from "../component/TableControls";
 import { useEffect, useState } from "react";
 import { api, setAuthToken } from "../api/client";
 import { toast } from "react-hot-toast";
@@ -6,6 +7,8 @@ export default function AdminPayments() {
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
+  const [paymentFilter, setPaymentFilter] = useState("all");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -26,7 +29,7 @@ export default function AdminPayments() {
     }
   }
 
-  const filteredBrands = brands.filter(
+  const filteredBrands = brands.filter(b => paymentFilter === "all" || b.paymentType === paymentFilter).filter(
     (b) =>
       b.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       b.slug?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -48,77 +51,67 @@ export default function AdminPayments() {
       <div className="max-w-7xl mx-auto">
         {/* HEADER */}
         <div className="mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">Payments</h1>
-          <p className="text-gray-400 text-sm md:text-base">View brand payment information</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">Payments</h1>
+          <p className="text-slate-500 text-sm md:text-base">View brand payment information</p>
         </div>
 
-        {/* SEARCH */}
-        <div className="mb-8">
-          <input
-            type="text"
-            placeholder="Search brands by name or slug..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
-          />
-        </div>
-
+        <TableSearch value={searchTerm} onChange={value => { setSearchTerm(value); setPage(1); }} placeholder="Search brands by name or slug…"><select aria-label="Payment type" value={paymentFilter} onChange={e => { setPaymentFilter(e.target.value); setPage(1); }} className="input-field sm:w-44"><option value="all">All payment types</option><option value="cash">Cash</option><option value="online">Online</option></select></TableSearch>
         {/* TABLE */}
         {filteredBrands.length === 0 ? (
-          <div className="bg-gray-800 border border-gray-700 rounded-xl p-12 text-center">
-            <p className="text-gray-400 text-lg">
+          <div className="bg-white border border-slate-200 rounded-xl p-12 text-center">
+            <p className="text-slate-500 text-lg">
               {searchTerm ? "No brands match your search" : "No brands found"}
             </p>
           </div>
         ) : (
-          <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
+          <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
             {/* RESPONSIVE TABLE */}
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="bg-gray-700">
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  <tr className="bg-slate-100">
+                    <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
                       Brand Name
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
                       Slug
                     </th>
 
-                       <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                       <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
                       Created By
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
                       Payment Type
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
                       Amount
                     </th>
                  
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-700">
-                  {console.log("Filtered Brands:", filteredBrands)}
-  {filteredBrands.map((brand) => (
-    <tr key={brand._id} className="hover:bg-gray-700/50">
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                <tbody className="divide-y divide-slate-200">
+                  
+  {filteredBrands.slice((page - 1) * 10, page * 10).map((brand) => (
+    <tr key={brand._id} className="hover:bg-slate-100">
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
         {brand.name || "N/A"}
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
         {brand.slug || "-"}
       </td>
 
     <td className="px-6 py-4 whitespace-nowrap text-sm">
-  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400 border border-blue-500/30">
+  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-700 border border-blue-500/30">
     {brand?.createdBy?.name || "-"}
   </span>
 </td>
       <td className="px-6 py-4">
-        <span className="text-sm text-gray-300 capitalize">
+        <span className="text-sm text-slate-700 capitalize">
           {brand.paymentType || "-"}
         </span>
       </td>
       <td className="px-6 py-4">
-        <span className="text-sm font-semibold text-green-400">
+        <span className="text-sm font-semibold text-green-700">
           ₹{brand.amount || 0}
         </span>
       </td>
@@ -127,6 +120,7 @@ export default function AdminPayments() {
 </tbody>
               </table>
             </div>
+            <TablePagination page={page} total={filteredBrands.length} onChange={setPage} />
           </div>
         )}
       </div>

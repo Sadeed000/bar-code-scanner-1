@@ -23,7 +23,6 @@ export default function AdminSettings() {
       setLoading(true);
       const res = await api.put(`/sellers/${user._id}`, form);
       toast.success("Profile updated successfully");
-      // Update local storage
       const updatedUser = { ...user, ...form };
       localStorage.setItem("user", JSON.stringify(updatedUser));
       setUser(updatedUser);
@@ -38,72 +37,96 @@ export default function AdminSettings() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-2xl mx-auto">
-        {/* HEADER */}
-        <div className="mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">Settings</h1>
-          <p className="text-gray-400 text-sm md:text-base">Update your profile information</p>
+        {/* PAGE HEADER */}
+        <div className="mb-8 animate-fade-in">
+          <h1 className="text-4xl font-bold text-slate-900 mb-2">Settings</h1>
+          <p className="text-slate-500">Manage your account and profile settings</p>
         </div>
 
-        {/* FORM */}
-        <div className="bg-gray-800 border border-gray-700 rounded-xl p-6">
+        {/* PROFILE CARD */}
+        <div className="card-elevated animate-fade-in">
+          <div className="mb-8">
+            <h2 className="text-xl font-bold text-slate-900 mb-1">Profile Information</h2>
+            <p className="text-slate-500 text-sm">Update your personal details</p>
+          </div>
+
           <div className="space-y-6">
             {/* NAME */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Full Name
-              </label>
+              <label className="label">Full Name</label>
               <input
                 type="text"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 placeholder="John Doe"
-                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
+                className="input-field"
               />
             </div>
 
             {/* EMAIL */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Email
-              </label>
+              <label className="label">Email Address</label>
               <input
                 type="email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 placeholder="seller@example.com"
-                  disabled={true} // or any condition
-
-  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled
+                className="input-field opacity-60 cursor-not-allowed"
               />
+              <p className="text-xs text-gray-500 mt-2">Email cannot be changed</p>
             </div>
 
             {/* PHONE */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Phone
-              </label>
+              <label className="label">Phone Number</label>
               <input
                 type="tel"
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                placeholder="+1 (555) 123-4567"
-                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
+                placeholder="+91 98765 43210"
+                className="input-field"
               />
             </div>
 
-            {/* SHOP NAME */}
- 
-
-
-            {/* SAVE BUTTON */}
-            <div className="flex justify-end">
+            {/* ACTION BUTTONS */}
+            <div className="flex justify-end gap-3 pt-6 border-t border-slate-200">
               <button
                 onClick={updateProfile}
                 disabled={loading}
-                className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-medium transition cursor-pointer"
+                className="btn btn-primary disabled:opacity-50"
               >
-                {loading ? "Updating..." : "Update Profile"}
+                {loading ? "Updating..." : "Save Changes"}
               </button>
+            </div>
+          </div>
+        </div>
+
+        {/* ADDITIONAL INFO CARD */}
+        <div className="card-elevated mt-8 animate-fade-in">
+          <div className="mb-6">
+            <h2 className="text-xl font-bold text-slate-900 mb-1">Account Information</h2>
+            <p className="text-slate-500 text-sm">View your account details</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <p className="text-sm text-slate-500 mb-1">User ID</p>
+              <p className="font-medium text-slate-900">{user._id || "N/A"}</p>
+            </div>
+            <div>
+              <p className="text-sm text-slate-500 mb-1">Role</p>
+              <span className="badge badge-primary">{user.role || "User"}</span>
+            </div>
+            <div>
+              <p className="text-sm text-slate-500 mb-1">Account Status</p>
+              <span className="badge badge-success">Active</span>
+            </div>
+            <div>
+              <p className="text-sm text-slate-500 mb-1">Member Since</p>
+              <p className="font-medium text-slate-900">
+                {new Date(user.createdAt).toLocaleDateString() || "N/A"}
+              </p>
             </div>
           </div>
         </div>
