@@ -10,7 +10,7 @@ test("same-origin API follows the deployed domain, with local and separate-host 
 
 test("all uploaded asset paths use the API host, including legacy local URLs", () => {
   const base = "https://api.example.com/api";
-  for (const value of ["/uploads/logos/logo.png", "uploads/logos/logo.png", "http://localhost:9797/uploads/logos/logo.png", "http://127.0.0.1:9797/uploads/logos/logo.png"]) {
+  for (const value of ["/uploads/logos/logo.png", "uploads/logos/logo.png", "http://localhost:9798/uploads/logos/logo.png", "http://127.0.0.1:9798/uploads/logos/logo.png"]) {
     assert.equal(resolveAssetUrl(value, base), "https://api.example.com/uploads/logos/logo.png");
   }
   assert.equal(resolveAssetUrl("/uploads/background image.png", base), "https://api.example.com/uploads/background%20image.png");

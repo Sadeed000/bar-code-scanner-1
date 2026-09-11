@@ -3,8 +3,8 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 const backendProxy = {
-  '/api': { target: 'http://127.0.0.1:9797', changeOrigin: true },
-  '/uploads': { target: 'http://127.0.0.1:9797', changeOrigin: true },
+  '/api': { target: 'http://127.0.0.1:9798', changeOrigin: true },
+  '/uploads': { target: 'http://127.0.0.1:9798', changeOrigin: true },
 };
 
 export default defineConfig({

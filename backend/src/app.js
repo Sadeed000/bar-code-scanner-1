@@ -94,7 +94,7 @@ app.use("/api/reviews", reviewRoutes);
 async function bootstrap() {
   await connectDB(process.env.MONGO_URI);
   const app = createApp();
-  const port = process.env.PORT || 9797;
+  const port = process.env.PORT || 9798;
   return app.listen(port, () =>
     console.log(`🚀 Server running on http://localhost:${port}`)
   );
