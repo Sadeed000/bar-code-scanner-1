@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { requireAuth } = require("../middleware/auth.middleware");
+const { requireAuth, requireAdmin } = require("../middleware/auth.middleware");
 const {
   createSellerController,
   listSellersController,
@@ -8,11 +8,16 @@ const {
   deleteSellerController,
 } = require("../controllers/seller.controller");
 
-// All seller routes require auth
-router.get("/", requireAuth, listSellersController);
-router.post("/", createSellerController);
-router.get("/:id", requireAuth, getSellerController);
-router.put("/:id", requireAuth, updateSellerController);
-router.delete("/:id", requireAuth, deleteSellerController);
+router.use(requireAuth);
+function adminOrSelf(req, res, next) {
+  if (req.user.role === "ADMIN" || (req.user.role === "SELLER" && String(req.user._id) === req.params.id)) return next();
+  return res.status(403).json({ message: "Access denied" });
+}
+// All seller routes require admin
+router.get("/", requireAdmin, listSellersController);
+router.post("/", requireAdmin, createSellerController);
+router.get("/:id", adminOrSelf, getSellerController);
+router.put("/:id", adminOrSelf, updateSellerController);
+router.delete("/:id", requireAdmin, deleteSellerController);
 
 module.exports = router;

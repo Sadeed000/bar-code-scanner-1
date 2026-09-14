@@ -3,10 +3,12 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { api, setAuthToken } from "../api/client";
 import { toast } from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
 import BrandForm from "../component/BrandForm";
 
 export default function AdminEditBrand() {
   const { id } = useParams();
+  const { user } = useAuth();
   const nav = useNavigate();
   const [form, setForm] = useState(null);
   const [scanCount, setScanCount] = useState(0);
@@ -151,7 +153,7 @@ if (form.gallery && form.gallery.length > 0) {
             </button>
           </div>
 
-          <BrandForm form={form} setForm={setForm} />
+          <BrandForm form={form} setForm={setForm} canEditPayment={user?.role !== "BUYER"} />
 
           <div className="flex flex-col-reverse sm:flex-row gap-3 justify-end mt-6">
             <button

@@ -57,6 +57,8 @@ exports.getBrandScanCount = async (req, res) => {
 
     const { slug } = req.params;
 
+    const scope = req.user.role === "ADMIN" ? {} : req.user.role === "BUYER" ? { _id: { $in: req.user.assignedBrands || [] } } : { createdBy: req.user._id };
+    if (!await Brand.exists({ ...scope, slug })) return res.status(403).json({ message: "Brand access required" });
     const count = await QRScan.countDocuments({ slug });
 
     res.json({
@@ -118,7 +120,10 @@ GET ALL BRAND SCAN COUNTS
 exports.getAllBrandScanCounts = async (req, res) => {
   try {
 
+    const scope = req.user.role === "ADMIN" ? {} : req.user.role === "BUYER" ? { _id: { $in: req.user.assignedBrands || [] } } : { createdBy: req.user._id };
+    const brands = await Brand.find(scope).select("_id");
     const result = await QRScan.aggregate([
+      { $match: { brandId: { $in: brands.map(brand => brand._id) } } },
       {
         $group: {
           _id: "$slug",

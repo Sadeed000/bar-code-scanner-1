@@ -14,7 +14,7 @@ const sellerUser = require("../models/Seller");
 
 async function login({ email, password, jwtSecret }) {
   const user = await sellerUser.findOne({ email: email.toLowerCase() });
-  if (!user) return null;
+  if (!user || user.isActive === false) return null;
 
   const ok = await bcrypt.compare(password, user.passwordHash);
   if (!ok) return null;
@@ -23,12 +23,15 @@ const token = jwt.sign(
   {
     sub: user._id,
     email: user.email,
-    role: user.role
+    role: user.role,
+    tokenVersion: user.tokenVersion || 0
   },
   process.env.JWT_SECRET,
   { expiresIn: "7d" }
 );
-  return { user, token };
+  const safeUser = user.toObject();
+  delete safeUser.passwordHash;
+  return { user: safeUser, token };
 }
 
 module.exports = { login };

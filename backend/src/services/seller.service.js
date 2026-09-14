@@ -16,7 +16,9 @@ async function createSeller(payload) {
   });
 
   // Don't send password hash to frontend
-  return doc.toObject();
+  const result = doc?.toObject();
+  if (result) delete result.passwordHash;
+  return result;
 }
 
 async function updateSeller(id, payload) {
@@ -26,11 +28,13 @@ async function updateSeller(id, payload) {
   }
 
   const doc = await Seller.findByIdAndUpdate(id, payload, { returnDocument: 'after' });
-  return doc.toObject();
+  const result = doc?.toObject();
+  if (result) delete result.passwordHash;
+  return result;
 }
 
 async function getSeller(id) {
-  return Seller.findById(id);
+  return Seller.findById(id).select("-passwordHash");
 }
 
 async function deleteSeller(id) {
@@ -38,7 +42,7 @@ async function deleteSeller(id) {
 }
 
 async function listSellers() {
-  return Seller.find().sort({ createdAt: -1 });
+  return Seller.find({ role: "SELLER" }).select("-passwordHash").sort({ createdAt: -1 });
 }
 async function getSellerStats() {
   const totalSellers = await Seller.countDocuments();

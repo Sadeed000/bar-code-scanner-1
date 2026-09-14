@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider, useAuth } from "./context/AuthContext";
@@ -8,6 +8,7 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminEditBrand from "./pages/AdminEditBrand";
 import AdminBrands from "./pages/AdminBrands";
+import AdminBuyers from "./pages/AdminBuyers";
 import AdminSellers from "./pages/AdminSellers";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import AdminPayments from "./pages/AdminPayments";
@@ -17,7 +18,8 @@ import BulkReview from "./pages/BulkReview";
 import AdminContactInbox from "./pages/AdminContactInbox";
 
 function ProtectedAdminRoutes() {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, user } = useAuth();
+  const { pathname } = useLocation();
 
   if (loading) {
     return (
@@ -26,6 +28,8 @@ function ProtectedAdminRoutes() {
       </div>
     );
   }
+
+  if (isAuthenticated && user?.role !== "ADMIN" && !/^\/admin\/brands(?:\/[^/]+)?\/?$/.test(pathname) && !(user?.role === "SELLER" && pathname === "/admin/settings")) return <Navigate to="/admin/brands" replace />;
 
   return isAuthenticated ? (
     <AdminLayout />
@@ -48,6 +52,7 @@ function AppRoutes() {
         <Route path="/admin/brands/:id" element={<AdminEditBrand />} />
         <Route path="/admin/contact-inbox" element={<AdminContactInbox />} />
         <Route path="/admin/analytics" element={<AdminAnalytics />} />
+        <Route path="/admin/buyers" element={<AdminBuyers />} />
         <Route path="/admin/sellers" element={<AdminSellers />} />
         <Route path="/admin/payments" element={<AdminPayments />} />
         <Route path="/admin/reviews" element={<BulkReview />} />

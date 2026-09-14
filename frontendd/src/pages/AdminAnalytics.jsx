@@ -1,66 +1,41 @@
 import TablePagination, { TableSearch } from "../component/TableControls";
 import { Tags, ScanLine } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { api, setAuthToken } from "../api/client";
-import { toast } from "react-hot-toast";
 
 export default function AdminAnalytics() {
-  const nav = useNavigate();
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const filtered = data.filter(b => `${b.name || ""} ${b.slug || ""} ${b.createdBy?.name || ""}`.toLowerCase().includes(search.toLowerCase()));
+  const [total, setTotal] = useState(0);
+  const [totals, setTotals] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [refresh, setRefresh] = useState(0);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    setAuthToken(token);
-    fetchAnalytics();
-  }, []);
-
-  async function fetchAnalytics() {
-    try {
-      setLoading(true);
-      const [brandsRes, scanRes] = await Promise.all([
-        api.get("/brands"),
-        api.get("/qr-code/analytics/brands"),
-      ]);
-
-      const scansMap = {};
-      (scanRes.data || []).forEach((item) => {
-        scansMap[item._id] = item.scans;
-      });
-
-      const merged = brandsRes.data.map((b) => ({
-        ...b,
-        scanCount: scansMap[b.slug] || 0,
-      }));
-
-      setData(merged);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to load analytics");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function logout() {
-    setAuthToken(null);
-    nav("/admin/login", { replace: true });
-  }
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading analytics...</p>
-        </div>
-      </div>
-    );
-  }
+    setAuthToken(localStorage.getItem("token"));
+    const controller = new AbortController();
+    setLoading(true);
+    setError("");
+    const timer = setTimeout(async () => {
+      try {
+        const { data: result } = await api.get("/qr-code/analytics/summary", {
+          params: { page, limit: 10, q: search.trim() }, signal: controller.signal,
+        });
+        if (controller.signal.aborted) return;
+        setData(result.items);
+        setTotal(result.total);
+        setTotals(result.totals);
+        setPage(result.page);
+      } catch (err) {
+        if (!controller.signal.aborted) setError(err.response?.data?.message || "Could not load analytics. Please try again.");
+      } finally {
+        if (!controller.signal.aborted) setLoading(false);
+      }
+    }, search ? 350 : 0);
+    return () => { clearTimeout(timer); controller.abort(); };
+  }, [page, search, refresh]);
 
   return (
     <div className="flex min-h-screen bg-slate-50">
@@ -85,20 +60,20 @@ export default function AdminAnalytics() {
       <div className="bg-white border border-slate-200 rounded-xl p-4 md:p-6">
         <Tags size={22} className="mb-4 text-blue-700" /><p className="text-slate-500 text-xs md:text-sm">Total Brands</p>
         <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mt-1 md:mt-2">
-          {data.length}
+          {totals?.totalBrands ?? "?"}
         </h2>
       </div>
 
       <div className="bg-white border border-slate-200 rounded-xl p-4 md:p-6">
         <ScanLine size={22} className="mb-4 text-emerald-700" /><p className="text-slate-500 text-xs md:text-sm">Total QR Scans</p>
         <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mt-1 md:mt-2">
-          {data.reduce((a, b) => a + (b.scanCount || 0), 0)}
+          {totals?.totalScans ?? "?"}
         </h2>
       </div>
 
     </div>
 
-    <TableSearch value={search} onChange={value => { setSearch(value); setPage(1); }} placeholder="Search brands, slugs, or creators…" />
+    <TableSearch value={search} onChange={value => { setLoading(true); setSearch(value); setPage(1); }} placeholder="Search brands, slugs, or creators…" />
     {/* TABLE */}
     <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
 
@@ -117,9 +92,11 @@ export default function AdminAnalytics() {
           </thead>
 
           <tbody>
-            {filtered.length === 0 && <tr><td colSpan={4} className="py-12 text-center text-slate-500">No brands match your search.</td></tr>}
+            {loading && <tr><td colSpan={4} className="py-12 text-center text-slate-500"><span role="status">Analytics are loading...</span></td></tr>}
+            {!loading && error && <tr><td colSpan={4} className="py-8 text-center"><p role="alert" className="text-red-700 mb-3">{error}</p><button className="btn btn-secondary btn-small" onClick={() => { setLoading(true); setRefresh(value => value + 1); }}>Try again</button></td></tr>}
+            {!loading && !error && data.length === 0 && <tr><td colSpan={4} className="py-12 text-center text-slate-500">No brands match your search.</td></tr>}
 
-            {filtered.slice((page - 1) * 10, page * 10).map((b) => (
+            {!loading && !error && data.map((b) => (
               <tr
                 key={b._id}
                 className="border-b border-slate-200 hover:bg-slate-100 transition"
@@ -167,7 +144,7 @@ export default function AdminAnalytics() {
         </table>
 
       </div>
-      <TablePagination page={page} total={filtered.length} onChange={setPage} />
+      {!loading && !error && <TablePagination page={page} total={total} onChange={value => { setLoading(true); setPage(value); }} />}
     </div>
 
   </div>

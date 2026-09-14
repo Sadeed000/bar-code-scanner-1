@@ -163,6 +163,7 @@ async function updateBrandController(req, res) {
     }
 
     const payload = { ...parsed.data };
+    if (req.user.role === "BUYER") { delete payload.amount; delete payload.paymentType; }
 
     /* HANDLE LOGO + WATERMARK */
     if (req.files) {

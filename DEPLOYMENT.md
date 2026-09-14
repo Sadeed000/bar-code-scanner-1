@@ -41,3 +41,26 @@ curl -i -X POST https://demo.sparrownix.com/api/brands/icon
 ```
 
 The expected response is `401` with JSON `{"message":"Unauthorized"}`. A `404` means the deployed route is still absent or misrouted. Then sign in and upload a PNG/JPG/WebP/GIF under 5 MB; the authenticated request should return `200` with an `/uploads/icons/...` URL.
+
+
+## Buyer (subadmin) access
+
+After deploying the updated backend and frontend, sign in as an ADMIN and open
+**Buyers & access** (`/admin/buyers`). Create a buyer with a name, email login ID,
+password (4?72 characters), and any number of existing brand assignments.
+Share the credentials with the buyer through your normal private channel.
+Buyers use `/admin/login` and land on their assigned brands.
+
+Use **Manage** to change assignments, reset a password (leave blank to keep it),
+or deactivate the account. Assignment changes apply on the next API request;
+deactivation and password resets invalidate existing buyer sessions. Buyers can
+edit assigned profiles and view their QR statistics, but cannot create/delete
+brands, change recorded payments, or manage other accounts.
+
+The active backend is `backend/src` (both app entry points use it). Buyer accounts
+use the existing Seller collection with role BUYER; existing ADMIN and SELLER
+accounts need no migration. Restart the backend after deployment. The new module
+requires both the updated backend and rebuilt frontend.
+
+Validation: `node --test tests/*.test.cjs` from backend; `npm run build` from
+frontendd. Buyer access tests use isolated model mocks, not a live database.

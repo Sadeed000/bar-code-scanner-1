@@ -1,0 +1,60 @@
+[dotenv@17.3.1] injecting env (5) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+✅ MongoDB connected
+Serving React build from: C:\projects\bar-code-scanner-1\frontendd\dist
+✅ dist folder found
+🚀 Server running on http://localhost:9798
+Existing brand: {
+  theme: {
+    accentColor: '#191d80',
+    fontFamily: "'Times New Roman', Times, serif",
+    headingSize: 44,
+    headingColor: '#191d80',
+    taglineSize: 17,
+    logoSize: 112,
+    taglineColor: '#6b7280'
+  },
+  _id: new ObjectId('6aa83c2cc892cb0bf109a28a'),
+  name: 'test',
+  slug: 'aaas',
+  tagline: 'hi i am herer ',
+  ownerName: 'hh',
+  ownerPhone: '',
+  paymentType: 'cash',
+  amount: 1130,
+  headline: '',
+  headlineAccent: '',
+  subtext: '',
+  logoUrl: '/uploads/logos/1789410348496-162902606.png',
+  googleReviewUrl: '',
+  patPoojaUrl: '',
+  createdBy: new ObjectId('6aa2d5fcdc143c07d76b253f'),
+  contactNumber: '7987886667',
+  links: [
+    {
+      label: 'Instagram',
+      enabled: true,
+      url: '',
+      icon: '/uploads/icons/9d6dca11-acb4-4e4c-86d2-cce362728e51.png'
+    },
+    {
+      label: 'Facebook',
+      enabled: true,
+      url: '',
+      icon: '/uploads/icons/6f936eb3-9319-47e2-9bbf-c8bd7a5a2566.png'
+    },
+    {
+      label: 'WhatsApp',
+      enabled: true,
+      url: '',
+      icon: '/uploads/icons/bbbab7bd-f66f-40fc-a893-01575e2370f0.png'
+    }
+  ],
+  reviews: [],
+  category: 'gym',
+  qrCodeUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJQAAACUCAYAAAB1PADUAAAAAklEQVR4AewaftIAAATGSURBVO3BQY4bSRAEwfAC//9l3znmqYBGJweSNszwR6qWnFQtOqladFK16KRq0UnVopOqRSdVi06qFp1ULTqpWnRSteikatFJ1aKTqkUnVYs+eQnIb1LzBpAn1ExAJjUTkDfUTEB+k5o3TqoWnVQtOqla9MkyNZuAvAHkRs0EZAJyA+RGzQ2QJ9RsArLppGrRSdWik6pFn3wZkCfUPAFkUjOpeUPNG0C+CcgTar7ppGrRSdWik6pFn/xjgNyomYBMaiYgb6i5AfIvOaladFK16KRq0Sf/GDWb1NwAuQHyf3JSteikatFJ1aJPvkzNnwTIG0Bu1ExAJjUTkDfU/ElOqhadVC06qVr0yTIgfxIgk5oJyA2QSc0E5DcB+ZOdVC06qVp0UrXok5fU/E2AvAFkUnOjZgLyhJq/yUnVopOqRSdViz55CcikZgKySc2kZgJyo2YCcqNmAnIDZFJzo+YGyCY133RSteikatFJ1aJPlgF5Qs0mNTdAJjUTkBs1E5A3gExq3lDzBJBJzRsnVYtOqhadVC365CU1E5A3gNyouQHyTUBu1ExAJjU3QCY1E5BNajadVC06qVp0UrXok2VqJiA3QCY136TmCTUTkEnNE0AmNTdAJjUTkAnIpGYCMqnZdFK16KRq0UnVok9eAjKpuVHzBJBJzQTkDSCTmgnIE0Bu1ExAJjVPqJmATEAmNd90UrXopGrRSdUi/JEvAnKj5gkgT6iZgNyoeQLIn0TNE0AmNW+cVC06qVp0UrXok1+m5gbIjZoJyKRmAjKpeQPIE2o2AZnUTEBu1ExqNp1ULTqpWnRStQh/5AUgN2pugNyomYBsUnMD5EbNDZAbNROQSc0NkEnNDZBJzaaTqkUnVYtOqhZ9skzNE2omIBOQSc0NkBs1T6iZgNwAmdTcAHlDzQTkRs03nVQtOqladFK16JMvA3KjZlJzA2RS8wSQN9RMQCY1E5A3gDyhZgJyA2RS88ZJ1aKTqkUnVYs++TI1E5AJyKRmAjKpeULNDZAngNwAuVEzAZnUTEC+Sc2mk6pFJ1WLTqoWffJlQCY1N0AmNZuATGomIJOaGyCTmifUTEBu1DyhZgIyqdl0UrXopGrRSdUi/JEXgExqJiCTmgnIpGYCcqPmm4BMam6ATGpugGxSMwF5Qs0bJ1WLTqoWnVQtwh/5iwHZpOYNIDdqJiCTmieAbFLzxknVopOqRSdViz55CchvUjOpmYBMam6APAFkUnOjZgLyBJBJzRtqvumkatFJ1aKTqkWfLFOzCcgNkEnNE2pugDyhZpOaJ9TcAJnUbDqpWnRSteikatEnXwbkCTVvAJnUvKFmAjIBuVEzqZmATEA2AZnUfNNJ1aKTqkUnVYs++Z8D8oSaCcgNkEnNpOYJIJOaCcgNkBs1b5xULTqpWnRSteiTf4yaCciNmgnIDZAbNZuA3AB5Q82mk6pFJ1WLTqoWffJlar5JzRNqJiCTmgnIpGYC8gSQJ9RMQJ5QMwH5ppOqRSdVi06qFn2yDMhvAjKpmdRMQDapmYA8oeYGyI2aGyCTmm86qVp0UrXopGoR/kjVkpOqRSdVi06qFp1ULTqpWnRSteikatFJ1aKTqkUnVYtOqhadVC06qVp0UrXopGrRf+3rIFth3zm+AAAAAElFTkSuQmCC',
+  gallery: [],
+  categoryLinks: [],
+  createdAt: 2026-09-14T18:25:48.619Z,
+  updatedAt: 2026-09-14T18:25:48.619Z,
+  __v: 0
+}

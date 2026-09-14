@@ -7,6 +7,7 @@ import { LayoutDashboard, Tags, Users, ChartNoAxesCombined, CreditCard, Inbox, S
 const navigation = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, admin: true, end: true },
   { to: "/admin/brands", label: "Brands", icon: Tags },
+  { to: "/admin/buyers", label: "Buyers & access", icon: ShieldCheck, admin: true },
   { to: "/admin/sellers", label: "Sellers", icon: Users, admin: true },
   { to: "/admin/analytics", label: "Analytics", icon: ChartNoAxesCombined, admin: true },
   { to: "/admin/payments", label: "Payments", icon: CreditCard, admin: true },
@@ -79,12 +80,12 @@ export default function AdminLayout() {
         </div>
         <p className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-[.16em] text-slate-500">Workspace</p>
         <nav className="space-y-1">
-          {navigation.filter(item => item.admin ? isAdmin : isAdmin || user?.role === "SELLER").map(item => { const { to, label, icon: Icon, end } = item; return <NavLink key={to} to={to} end={end} onClick={closeMenus} className={({ isActive }) => `admin-nav-link ${isActive ? "active" : ""}`}><Icon size={19} /><span>{label}</span></NavLink>; })}
+          {navigation.filter(item => item.admin ? isAdmin : isAdmin || ["SELLER", "BUYER"].includes(user?.role)).map(item => { const { to, label, icon: Icon, end } = item; return <NavLink key={to} to={to} end={end} onClick={closeMenus} className={({ isActive }) => `admin-nav-link ${isActive ? "active" : ""}`}><Icon size={19} /><span>{label}</span></NavLink>; })}
         </nav>
-        <div className="mt-8 border-t border-white/10 pt-6">
+        {user?.role !== "BUYER" && <div className="mt-8 border-t border-white/10 pt-6">
           <p className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-[.16em] text-slate-500">Account</p>
           <NavLink to="/admin/settings" onClick={closeMenus} className={({ isActive }) => `admin-nav-link ${isActive ? "active" : ""}`}><Settings size={19} />Settings</NavLink>
-        </div>
+        </div>}
         <div className="mt-auto pt-2">
           {/* <div className="rounded-xl border border-white/10 bg-white/[.03] p-4"><ShieldCheck size={20} className="mb-2 text-blue-200" /><p className="text-xs font-medium text-slate-200">Your workspace, connected.</p><p className="mt-1 text-xs leading-relaxed text-slate-400">Manage your brands and customer connections in one place.</p></div> */}
           <button onClick={logout} className="admin-nav-link w-full"><LogOut size={18} />Sign out</button>
@@ -103,7 +104,7 @@ export default function AdminLayout() {
                 <span className="flex h-9 w-9 items-center justify-center rounded-full border border-blue-100 bg-blue-50 text-sm font-semibold text-blue-800">{user?.name?.charAt(0)?.toUpperCase() || "U"}</span>
                 <span className="hidden sm:block"><span className="block max-w-36 truncate text-xs font-semibold text-slate-800">{user?.name || "User"}</span><span className="block text-[10px] capitalize text-slate-500">{user?.role?.toLowerCase() || "Account"}</span></span><ChevronDown size={14} className="text-slate-400" />
               </button>
-              {popover === "profile" && <div className="header-popover animate-fade-in"><div className="border-b border-slate-100 p-3"><p className="font-semibold">{user?.name || "User"}</p><p className="break-all text-xs text-slate-500">{user?.email}</p></div><Link to="/admin/settings" onClick={closeMenus}><Settings size={16} />Profile & settings</Link><button onClick={logout}><LogOut size={16} />Sign out</button></div>}
+              {popover === "profile" && <div className="header-popover animate-fade-in"><div className="border-b border-slate-100 p-3"><p className="font-semibold">{user?.name || "User"}</p><p className="break-all text-xs text-slate-500">{user?.email}</p></div>{user?.role !== "BUYER" && <Link to="/admin/settings" onClick={closeMenus}><Settings size={16} />Profile & settings</Link>}<button onClick={logout}><LogOut size={16} />Sign out</button></div>}
             </div>
           </div>
         </header>

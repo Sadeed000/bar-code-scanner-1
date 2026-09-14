@@ -48,6 +48,7 @@ app.use(
   app.get("/health", (req, res) => res.json({ ok: true }));
 
   app.use("/api/auth", authRoutes);
+  app.use("/api/buyers", require("./routes/buyer.routes"));
   app.use("/api/brands", brandRoutes);
   app.use("/api/sellers", sellerRoutes);
   app.use("/api/qr-code", qrRoutes);

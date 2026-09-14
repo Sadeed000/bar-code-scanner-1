@@ -28,7 +28,7 @@ const THEME_DEFAULTS = {
   taglineColor: "#6b7280",
 };
 
-export default function BrandForm({ form, setForm }) {
+export default function BrandForm({ form, setForm, canEditPayment = true }) {
 
   const [categories, setCategories] = useState([]);
   const [categorySearch, setCategorySearch] = useState("");
@@ -316,6 +316,7 @@ export default function BrandForm({ form, setForm }) {
 </div>
 
           {/* PAYMENT INFO */}
+          {canEditPayment && <>
           <div>
             <label className={labelClass}>Payment Type</label>
             <select
@@ -337,6 +338,7 @@ export default function BrandForm({ form, setForm }) {
               className={inputClass}
             />
           </div>
+</>}
 <LogoUpload form={form} setForm={setForm}  />
 
 {/* WATERMARK UPLOAD */}
@@ -369,7 +371,6 @@ export default function BrandForm({ form, setForm }) {
     )}
   </div>
 
-{/* WATERMARK PREVIEW */}
 {(form?.watermarkFile || form?.watermarkUrl) && (
   <div>
     <p className="text-xs text-slate-500 mt-2">

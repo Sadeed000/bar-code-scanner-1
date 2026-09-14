@@ -1,11 +1,12 @@
 import Modal from "../component/Modal";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, setAuthToken, assetUrl } from "../api/client";
 import { toast } from "react-hot-toast";
 import BrandForm from "../component/BrandForm";
 import ConfirmDialog from "../component/ConfirmDialog";
 import useDebounce from "../utils/useDebounce";
+import { categoryColor } from "../utils/categoryColor";
 import { QrCode, Download, X, Pencil, Trash2, Plus, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 
 
@@ -13,6 +14,7 @@ export default function AdminBrands() {
   const nav = useNavigate();
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
+  const latestBrandsRequest = useRef(0);
   const [showModal, setShowModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 900);
@@ -132,6 +134,7 @@ export default function AdminBrands() {
   }
 
   async function fetchBrands({ page: nextPage, q } = {}) {
+    const requestId = ++latestBrandsRequest.current;
     try {
       setLoading(true);
       const { start, end } = getDateRangeForTimeframe(timeframe);
@@ -150,6 +153,7 @@ export default function AdminBrands() {
         api.get("/qr-code/analytics/brands"),
       ]);
 
+      if (requestId !== latestBrandsRequest.current) return;
       const countsMap = {};
       (analyticsRes.data || []).forEach((item) => {
         countsMap[item._id] = item.scans;
@@ -176,13 +180,14 @@ export default function AdminBrands() {
       }
     } catch (error) {
       console.error(error);
-      toast.error("Failed to load brands");
+      if (requestId === latestBrandsRequest.current) toast.error("Failed to load brands");
     } finally {
-      setLoading(false);
+      if (requestId === latestBrandsRequest.current) setLoading(false);
     }
   }
 
   async function createBrand() {
+    if (user.role !== "ADMIN") return;
     try {
       if (!form.name || form.name.length < 2) {
         toast.error("Brand name must be at least 2 characters");
@@ -235,6 +240,7 @@ export default function AdminBrands() {
   }
 
   function openCreateModal() {
+    if (user.role !== "ADMIN") return;
     setForm({
       name: "",
       slug: "",
@@ -292,17 +298,6 @@ export default function AdminBrands() {
     document.body.removeChild(link);
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="w-12 h-12 rounded-full border-4 border-slate-200 border-t-blue-500 animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-500">Loading brands...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
@@ -312,13 +307,13 @@ export default function AdminBrands() {
             <h1 className="text-4xl font-bold text-slate-900 mb-2">Brands</h1>
             <p className="text-slate-500">Manage and configure all your brand profiles</p>
           </div>
-          <button
+          {user.role === "ADMIN" && <button
             onClick={openCreateModal}
             className="btn btn-primary inline-flex whitespace-nowrap"
           >
             <Plus className="w-5 h-5" />
             <span>Create Brand</span>
-          </button>
+          </button>}
         </div>
 
         {/* FILTERS BAR */}
@@ -381,16 +376,20 @@ export default function AdminBrands() {
         </div>
 
         {/* TABLE */}
-        {brands.length === 0 ? (
+        {loading && brands.length === 0 ? (
+          <div className="card-elevated flex items-center justify-center min-h-64" role="status">
+            <span className="text-sm text-slate-500">Loading brands...</span>
+          </div>
+        ) : brands.length === 0 ? (
           <div className="card-elevated text-center py-16 animate-fade-in">
             <QrCode className="w-16 h-16 text-gray-600 mx-auto mb-4" />
             <p className="text-slate-500 font-medium text-lg mb-2">
               {searchTerm || timeframe !== "all" ? "No brands match your filters" : "No brands created yet"}
             </p>
             <p className="text-gray-500 text-sm mb-6">
-              {!searchTerm && timeframe === "all" && "Create your first brand to get started"}
+              {!searchTerm && timeframe === "all" && (user.role !== "ADMIN" ? "Contact your administrator to add a brand." : "Create your first brand to get started")}
             </p>
-            {!searchTerm && timeframe === "all" && (
+            {user.role === "ADMIN" && !searchTerm && timeframe === "all" && (
               <button
                 onClick={openCreateModal}
                 className="btn btn-primary inline-flex"
@@ -401,7 +400,13 @@ export default function AdminBrands() {
             )}
           </div>
         ) : (
-          <div className="card-elevated overflow-hidden animate-fade-in">
+          <div className="card-elevated overflow-hidden relative" aria-busy={loading}>
+            {loading && <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 cursor-wait">
+              <div role="status" className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">
+                <span className="h-4 w-4 rounded-full border-2 border-slate-200 border-t-blue-600 animate-spin" aria-hidden="true" />
+                Loading brands...
+              </div>
+            </div>}
             {/* Table Wrapper */}
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -445,7 +450,7 @@ export default function AdminBrands() {
                       {/* Category */}
                       <td className="px-6 py-4">
                         {brand.category ? (
-                          <span className="badge badge-info text-xs">
+                          <span className="badge text-xs font-medium" style={{ ...categoryColor(brand.category), borderRadius: "9999px", padding: "4px 12px" }}>
                             {brand.category}
                           </span>
                         ) : (
@@ -504,13 +509,13 @@ export default function AdminBrands() {
                           >
                             <Pencil className="w-4 h-4" />
                           </button>
-                          <button
+                          {user.role !== "BUYER" && <button
                             onClick={() => deleteBrand(brand._id)}
                             className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-700 hover:text-red-700 transition"
                             title="Delete"
                           >
                             <Trash2 className="w-4 h-4" />
-                          </button>
+                          </button>}
                         </div>
                       </td>
                     </tr>
@@ -528,7 +533,7 @@ export default function AdminBrands() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setPage(1)}
-                  disabled={page <= 1}
+                  disabled={loading || page <= 1}
                   className="btn btn-small btn-secondary disabled:opacity-40"
                   title="First page"
                 >
@@ -536,7 +541,7 @@ export default function AdminBrands() {
                 </button>
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page <= 1}
+                  disabled={loading || page <= 1}
                   className="btn btn-small btn-secondary disabled:opacity-40"
                   title="Previous page"
                 >
@@ -544,7 +549,7 @@ export default function AdminBrands() {
                 </button>
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={page >= totalPages}
+                  disabled={loading || page >= totalPages}
                   className="btn btn-small btn-secondary disabled:opacity-40"
                   title="Next page"
                 >
@@ -552,7 +557,7 @@ export default function AdminBrands() {
                 </button>
                 <button
                   onClick={() => setPage(totalPages)}
-                  disabled={page >= totalPages}
+                  disabled={loading || page >= totalPages}
                   className="btn btn-small btn-secondary disabled:opacity-40"
                   title="Last page"
                 >
@@ -565,9 +570,9 @@ export default function AdminBrands() {
       </div>
 
       {/* CREATE BRAND MODAL */}
-      {showModal && (
+      {user.role === "ADMIN" && showModal && (
         <Modal onClose={() => setShowModal(false)} label="Create brand">
-          <div className="modal-content max-w-3xl animate-fade-in-up">
+          <div className="modal-content create-brand-modal animate-fade-in-up">
             <div className="flex items-center justify-between mb-6 pb-6 border-b border-slate-200">
               <div>
                 <h2 className="text-2xl font-bold text-slate-900">Create Brand</h2>

@@ -12,7 +12,10 @@ export default function BulkReviewsPage() {
   const [summary, setSummary] = useState([]);
   const [summarySearch, setSummarySearch] = useState("");
   const [summaryPage, setSummaryPage] = useState(1);
-  const filteredSummary = summary.filter(item => item.reviewCount > 0 && `${item.category} ${item.uploadedBy}`.toLowerCase().includes(summarySearch.toLowerCase()));
+  const [summaryTotal, setSummaryTotal] = useState(0);
+  const [summaryLoading, setSummaryLoading] = useState(true);
+  const [summaryError, setSummaryError] = useState("");
+  const [summaryRefresh, setSummaryRefresh] = useState(0);
   const [loading, setLoading] = useState(false);
   const [overwriteExisting, setOverwriteExisting] = useState(false);
 
@@ -51,18 +54,31 @@ async function createCategory(name) {
 
   // Load uploaded categories
 useEffect(() => {
-  fetchSummary();
   fetchCategories();
 }, []);
 
-  async function fetchSummary() {
-    try {
-      const res = await api.get("/reviews/summary");
-      setSummary(res.data);
-    } catch (err) {
-      console.log(err);
-    }
-  }
+  useEffect(() => {
+    const controller = new AbortController();
+    setSummaryLoading(true);
+    setSummaryError("");
+    const timer = setTimeout(async () => {
+      try {
+        const { data } = await api.get("/reviews/summary", {
+          params: { page: summaryPage, limit: 10, q: summarySearch.trim() },
+          signal: controller.signal,
+        });
+        if (controller.signal.aborted) return;
+        setSummary(data.items);
+        setSummaryTotal(data.total);
+        setSummaryPage(data.page);
+      } catch (err) {
+        if (!controller.signal.aborted) setSummaryError(err.response?.data?.message || "Could not load reviews. Please try again.");
+      } finally {
+        if (!controller.signal.aborted) setSummaryLoading(false);
+      }
+    }, summarySearch ? 350 : 0);
+    return () => { clearTimeout(timer); controller.abort(); };
+  }, [summaryPage, summarySearch, summaryRefresh]);
 
   function handleFile(e) {
     const selectedFile = e.target.files[0];
@@ -126,7 +142,8 @@ useEffect(() => {
         fileInputRef.current.value = "";
       }
 
-      fetchSummary();
+      setSummaryLoading(true);
+      setSummaryRefresh(value => value + 1);
 
     } catch (err) {
       toast.error(err.response?.data?.message || "Upload failed");
@@ -321,7 +338,7 @@ useEffect(() => {
         )}
 
         {/* UPLOADED REVIEW SUMMARY TABLE */}
-        <TableSearch value={summarySearch} onChange={value => { setSummarySearch(value); setSummaryPage(1); }} placeholder="Search categories or uploaders…" />
+        <TableSearch value={summarySearch} onChange={value => { setSummaryLoading(true); setSummarySearch(value); setSummaryPage(1); }} placeholder="Search categories or uploaders…" />
 
         <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
 
@@ -343,7 +360,9 @@ useEffect(() => {
               </thead>
 
               <tbody>
-{filteredSummary.length === 0 && (
+{summaryLoading && <tr><td colSpan="4" className="text-center py-6 text-slate-500"><span role="status">Reviews are loading...</span></td></tr>}
+{!summaryLoading && summaryError && <tr><td colSpan="4" className="text-center py-6"><p role="alert" className="text-red-700 mb-3">{summaryError}</p><button type="button" className="btn btn-secondary btn-small" onClick={() => { setSummaryLoading(true); setSummaryRefresh(value => value + 1); }}>Try again</button></td></tr>}
+{!summaryLoading && !summaryError && summary.length === 0 && (
   <tr>
     <td
       colSpan="4"
@@ -354,9 +373,7 @@ useEffect(() => {
   </tr>
 )}
 
-{filteredSummary
-  .slice((summaryPage - 1) * 10, summaryPage * 10)
-  .map((item) => (
+{!summaryLoading && !summaryError && summary.map((item) => (
     <tr
       key={item._id}
       className="border-b border-slate-200 hover:bg-slate-100"
@@ -386,7 +403,7 @@ useEffect(() => {
             </table>
 
           </div>
-          <TablePagination page={summaryPage} total={filteredSummary.length} onChange={setSummaryPage} />
+          {!summaryLoading && !summaryError && <TablePagination page={summaryPage} total={summaryTotal} onChange={page => { setSummaryLoading(true); setSummaryPage(page); }} />}
         </div>
 
       </div>

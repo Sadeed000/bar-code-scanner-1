@@ -1,7 +1,7 @@
 const { uploadRoot } = require("../../config/uploads");
 const path = require("path");
 const router = require("express").Router();
-const { requireAuth } = require("../middleware/auth.middleware");
+const { requireAuth, requireAdmin, requireBrandAccess, requireBrandCreator } = require("../middleware/auth.middleware");
 const {
   createBrandController,
   updateBrandController,
@@ -44,11 +44,12 @@ router.post("/icon", requireAuth, (req, res) => {
 router.get("/public/:slug", getBrandPublicController);
 
 // admin protected
-router.get("/stats", requireAuth, getStatsController);
+router.get("/stats", requireAuth, requireAdmin, getStatsController);
 router.get("/", requireAuth, listBrandsController);
 router.post(
   "/",
   requireAuth,
+  requireAdmin,
   upload.fields([
     { name: "logo", maxCount: 1 },
     { name: "watermark", maxCount: 1 },
@@ -61,6 +62,7 @@ router.post(
 router.put(
   "/:id",
   requireAuth,
+  requireBrandAccess,
   upload.fields([
     { name: "logo", maxCount: 1 },
     { name: "watermark", maxCount: 1 },
@@ -70,7 +72,7 @@ router.put(
   ]),
   updateBrandController
 );
-router.delete("/:id", requireAuth, deleteBrandController);
+router.delete("/:id", requireAuth, requireBrandCreator, requireBrandAccess, deleteBrandController);
 
 
 // router.get("/r/:slug", trackQRScan);

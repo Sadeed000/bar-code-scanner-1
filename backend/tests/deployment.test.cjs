@@ -16,6 +16,9 @@ test("uploaded images and production routes are served without a database connec
   const { createApp } = require("../src/app");
   const { upload } = require("../src/utils/upload");
   const jwt = require("jsonwebtoken");
+  const Seller = require("../src/models/Seller");
+  const originalFindById = Seller.findById;
+  Seller.findById = () => ({ select: async () => ({ _id: "test-user", role: "ADMIN" }) });
   const app = createApp();
   // Exercise the real multipart storage used by brand forms, without writing database records.
   app.post("/test-brand-files", upload.fields([{ name: "logo" }, { name: "watermark" }, { name: "background" }, { name: "gallery" }]), (req, res) => {
@@ -28,6 +31,10 @@ test("uploaded images and production routes are served without a database connec
   try {
     // A mounted upload route must reject unauthenticated requests with 401,
     // rather than falling through to Express's "Cannot POST" 404 response.
+    for (const method of ["GET", "POST"]) {
+      const buyersResponse = await fetch(base + "/api/buyers", { method });
+      assert.equal(buyersResponse.status, 401, "Buyer routes must be mounted in the app");
+    }
     const unauthenticatedIcon = await fetch(base + "/api/brands/icon", { method: "POST" });
     assert.equal(unauthenticatedIcon.status, 401);
     assert.match(unauthenticatedIcon.headers.get("content-type"), /application\/json/);
@@ -57,6 +64,7 @@ test("uploaded images and production routes are served without a database connec
     }
     assert.match(await (await fetch(base + "/admin/brands")).text(), /Deployment fixture/);
   } finally {
+    Seller.findById = originalFindById;
     await new Promise(resolve => server.close(resolve));
     // Remove only this test's freshly created temporary directory.
     const resolved = fs.realpathSync(temp);

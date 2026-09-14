@@ -44,6 +44,7 @@
 .admin-shell, .admin-login { color: #24334b; background: #f5f7fb; font-size: 14px; line-height: 1.6; }
 .admin-shell svg, .admin-login svg { stroke-width: 1.7; flex-shrink: 0; }
 .admin-content { min-width: 0; }
+.modal-content.create-brand-modal { width: 100%; max-width: 1020px; }
 .admin-content h1 { font-size: clamp(1.6rem, 2.5vw, 2rem); letter-spacing: -.04em; font-weight: 650; line-height: 1.25; }
 .admin-content h2, .admin-content h3 { letter-spacing: -.025em; }
 .admin-content table { width: 100%; font-size: 13px; }

@@ -87,7 +87,7 @@ exports.getReviewSummary = async (req, res) => {
 
   try {
 
-    const data = await reviewService.getReviewSummary();
+    const data = await reviewService.getReviewSummary(req.query);
 
     res.json(data);
 

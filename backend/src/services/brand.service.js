@@ -76,7 +76,7 @@ return BrandProfile
 
   // Otherwise → return only user's brands
   return BrandProfile
-    .find({ createdBy: user._id })
+    .find(user.role === "BUYER" ? { _id: { $in: user.assignedBrands || [] } } : { createdBy: user._id })
     .populate("createdBy", "name email")
     .sort({ createdAt: -1 });
 }
@@ -97,7 +97,9 @@ async function listBrandsPaged(user, options = {}) {
 
   const filter = {};
 
-  if (user?.role !== "ADMIN") {
+  if (user?.role === "BUYER") {
+    filter._id = { $in: user.assignedBrands || [] };
+  } else if (user?.role !== "ADMIN") {
     filter.createdBy = user?._id;
   }
 

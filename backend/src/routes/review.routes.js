@@ -11,11 +11,11 @@ const {
   createCategory
 } = require("../controllers/review.controller");
 
-const { requireAuth } = require("../middleware/auth.middleware");
+const { requireAuth, requireAdmin } = require("../middleware/auth.middleware");
 
 router.post(
   "/upload",
-  requireAuth,
+  requireAuth, requireAdmin,
   upload.single("file"),
   uploadReviews
 );
@@ -23,8 +23,8 @@ router.post(
 router.get("/category/:category", getCategoryReviews);
 
 router.get("/categories", getCategories);
-router.post("/category", createCategory);
+router.post("/category", requireAuth, requireAdmin, createCategory);
 
-router.get("/summary", getReviewSummary);
+router.get("/summary", requireAuth, requireAdmin, getReviewSummary);
 
 module.exports = router;
