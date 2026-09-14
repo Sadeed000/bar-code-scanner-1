@@ -4,9 +4,12 @@ const QRCode = require("qrcode");
 
 async function createBrand(payload) {
 
-  const slug = payload.slug
-    ? payload.slug.toLowerCase().replace(/\s+/g, "-")
-    : payload.name.toLowerCase().replace(/\s+/g, "-");
+  const slug = slugify(payload.slug || payload.name);
+  if (!slug) {
+    const error = new Error("Enter a slug containing letters or numbers.");
+    error.status = 400;
+    throw error;
+  }
 
   const qrCodeUrl = await generateQRCode(slug);
 
@@ -21,26 +24,40 @@ async function createBrand(payload) {
 
 
 async function updateBrand(id, payload) {
-
-  if (payload.slug) {
-    payload.slug = slugify(payload.slug);
-  }
-
-  // if slug is changing we should regenerate the QR code too
-  if (payload.slug) {
+  const update = { ...payload };
+  if (Object.prototype.hasOwnProperty.call(update, "slug")) {
     const existing = await BrandProfile.findById(id);
-    if (existing && existing.slug !== payload.slug) {
-      payload.qrCodeUrl = await generateQRCode(payload.slug);
+    if (!existing) return null;
+
+    // Older slugs may contain punctuation. Saving other fields must keep
+    // the exact public URL and QR code, without normalizing it again.
+    if (update.slug === existing.slug || update.slug === undefined) {
+      delete update.slug;
+    } else {
+      update.slug = slugify(update.slug);
+      if (!update.slug) {
+        const error = new Error("Enter a slug containing letters or numbers.");
+        error.status = 400;
+        throw error;
+      }
+      if (update.slug === existing.slug) {
+        delete update.slug;
+      } else {
+        const conflict = await BrandProfile.findOne({
+          slug: update.slug,
+          _id: { $ne: id },
+        });
+        if (conflict) {
+          const error = new Error("This slug is already used by another brand. Choose a different slug.");
+          error.status = 409;
+          throw error;
+        }
+        update.qrCodeUrl = await generateQRCode(update.slug);
+      }
     }
   }
 
-  const doc = await BrandProfile.findByIdAndUpdate(
-    id,
-    payload,
-    { returnDocument: 'after' }
-  );
-
-  return doc;
+  return BrandProfile.findByIdAndUpdate(id, update, { returnDocument: 'after' });
 }
 
 async function getBrandBySlug(slug) {

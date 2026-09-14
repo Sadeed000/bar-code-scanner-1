@@ -108,6 +108,14 @@ if (req.files && req.files.gallery) {
     res.status(201).json(doc);
 
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({
+        message: "This slug is already used by another brand. Choose a different slug.",
+      });
+    }
+    if (error.status === 400 || error.status === 409) {
+      return res.status(error.status).json({ message: error.message });
+    }
     res.status(500).json({
       message: error.message || "Server error",
       error: error.message,
@@ -188,6 +196,14 @@ async function updateBrandController(req, res) {
     res.json(doc);
 
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({
+        message: "This slug is already used by another brand. Choose a different slug.",
+      });
+    }
+    if (error.status === 400 || error.status === 409) {
+      return res.status(error.status).json({ message: error.message });
+    }
     res.status(500).json({
       message: "Server error",
       error: error.message,
